@@ -46,8 +46,8 @@
                              >
                         </Editor>
 
-                        <core:SfBusyIndicator IsVisible="{Binding IsLoading}"
-                                              IsRunning="True"
+                        <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
+                                              IsVisible="{Binding IsLoading}"
                                               AnimationType="SingleCircle"
     />
                     </Grid>

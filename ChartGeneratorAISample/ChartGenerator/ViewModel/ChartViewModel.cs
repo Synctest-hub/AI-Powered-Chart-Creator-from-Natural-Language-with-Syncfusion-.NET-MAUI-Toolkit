@@ -177,6 +177,7 @@ namespace ChartGenerator
                 }
                 else
                 {
+                    await Task.Delay(500);
                     CreateOfflineChart(EntryText);
                     AssistItem message = new() { Text = "Currently in offline mode...", ShowAssistItemFooter = false };
                     Messages.Add(message);
