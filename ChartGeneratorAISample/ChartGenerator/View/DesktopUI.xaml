@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+             x:Class="ChartGenerator.DesktopUI"
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:local="clr-namespace:ChartGenerator"
+             >
+
+    <ContentPage.Resources>
+        <LinearGradientBrush x:Key="strokeGradient"
+     StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="RoyalBlue" Offset="0.0" />
+            <GradientStop Color="#FFD322FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Resources>
+    
+    <ContentPage.BindingContext>
+        <local:ChartViewModel/>
+    </ContentPage.BindingContext>
+    
+    <ScrollView>
+            <VerticalStackLayout VerticalOptions="Center" Padding="20" Spacing="20">
+
+            <Label Text="AI-Powered Chart Creator"
+                   FontSize="32" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Create visually striking charts with simple text prompts, transforming complex data into captivating visual stories."
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   TextColor="Gray" />
+
+            <!--<Border Stroke="{StaticResource strokeGradient}" StrokeShape="RoundRectangle 10" Padding="5">-->
+            <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
+
+                    <Grid ColumnDefinitions="*" HorizontalOptions="FillAndExpand" Grid.Column="0">
+                        <!--<Label Text="&#xe7e1;" FontFamily="MauiSampleFontIcon" Margin="5"
+                           Opacity="0.5" VerticalOptions="Start" HeightRequest="30" WidthRequest="30" IsVisible="True" />-->
+                        <Editor Grid.Column="1" IsEnabled="{Binding IsDisable}"
+                                BackgroundColor="Transparent"
+                                HeightRequest="100"
+                                PlaceholderColor="Gray"
+                                Text="{Binding EntryText}"
+                                Placeholder="Describe what you want to create.."
+                                HorizontalOptions="FillAndExpand"
+                                FontSize="14"
+                                TextColor="Black"
+                             >
+                            <!--<VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup>
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="LightGray" />
+                                            <Setter Property="TextColor" Value="DarkGray" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>-->
+                        </Editor>
+
+                        <core:SfBusyIndicator IsVisible="{Binding IsLoading}"
+                                              IsRunning="True"
+                                              AnimationType="SingleCircle"
+    />
+                    </Grid>
+
+                <buttons:SfButton Text="&#xe76f;" 
+                         FontFamily="MauiSampleFontIcon" 
+                            Background="{StaticResource strokeGradient}" 
+                            TextColor="White"
+                            IsEnabled="{Binding IsDisable}"
+                            CornerRadius="10"
+                            Command="{Binding CreateButtonClicked}"
+                            HorizontalOptions="End"
+                            VerticalOptions="End"
+                            HeightRequest="40"
+                                  WidthRequest="40"
+                                  FontSize="18"
+                            Grid.Column="1">
+                        <!--<VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup>
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Property="Background" Value="Gray" />
+                                        <Setter Property="TextColor" Value="LightGray" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>-->
+                    </buttons:SfButton>
+                </Grid>
+            <!--</Border>-->
+
+            <HorizontalStackLayout Spacing="10"
+                                       HorizontalOptions="Center"
+                                       >
+                    <Label Text="Try these"
+                       FontSize="14"
+                       TextColor="#322B35" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+
+                <Button Text="&quot;Visualize revenue distribution by region.&quot;"
+                        FontSize="12"
+                        x:Name="barButton"
+                        TextColor="#322B35"
+                        Background="#F4F4F4"
+                        HorizontalOptions="Center"
+                        WidthRequest="150"
+                        LineBreakMode="WordWrap"
+                        Command="{Binding ButtonClicked}"
+                        CommandParameter="{Binding Text, Source={x:Reference barButton}}">
+                </Button>
+
+                <Button Text="&quot;Generate a monthly sales data pie chart.&quot;"
+                        FontSize="12"
+                        x:Name="pieButton"
+                        TextColor="#322B35"
+                        Background="#F4F4F4"
+                        HorizontalOptions="Center"
+                        WidthRequest="150"
+                        LineBreakMode="WordWrap"
+                        Command="{Binding ButtonClicked}"
+                        CommandParameter="{Binding Text, Source={x:Reference pieButton}}"/>
+
+                <Button x:Name="doughnutButton" 
+                        Text="&quot;Draft a doughnut chart for project task completion.&quot;"
+                        FontSize="12"
+                        TextColor="#322B35"
+                        Background="#F4F4F4"
+                        HorizontalOptions="Center" 
+                        LineBreakMode="WordWrap"
+                        WidthRequest="150"
+                        Command="{Binding ButtonClicked}"
+                        CommandParameter="{Binding Text, Source={x:Reference doughnutButton}}"/>
+            </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+   
+</ContentPage>
