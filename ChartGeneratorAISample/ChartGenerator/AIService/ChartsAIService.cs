@@ -10,7 +10,7 @@ namespace ChartGenerator
         /// <summary>
         /// The EndPoint
         /// </summary>
-        internal const string endpoint = "https://mobilemaui.openai.azure.com/";
+        internal const string endpoint = "https://YOUR_ACCOUNT.openai.azure.com/";
 
         /// <summary>
         /// The Deployment name

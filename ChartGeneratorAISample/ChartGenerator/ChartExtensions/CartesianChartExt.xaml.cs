@@ -37,7 +37,6 @@ public partial class CartesianChartExt : SfCartesianChart
             this.Series.Clear();
             foreach (var config in configs)
             {
-                //CreateSeries(config);
                 CreateSeriesFromTemplate(config);
             }
         }
@@ -57,59 +56,6 @@ public partial class CartesianChartExt : SfCartesianChart
                 series.BindingContext = seriesConfig;
                 this.Series.Add(series);
             }        
-        }
-    }
-
-    private void CreateSeries(SeriesConfig config)
-    {
-        ChartSeries series = null;
-
-        switch (config.Type)
-        {
-            case ChartEnums.SeriesType.Line:
-                series = new LineSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-
-            case ChartEnums.SeriesType.Area:
-                series = new AreaSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-
-            case ChartEnums.SeriesType.Spline:
-                series = new SplineSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-
-            case ChartEnums.SeriesType.Column:
-                series = new ColumnSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-        }
-
-        if (series != null)
-        {
-            this.Series.Add(series);
         }
     }
 }
