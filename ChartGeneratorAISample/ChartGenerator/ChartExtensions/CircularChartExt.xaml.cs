@@ -32,7 +32,6 @@ public partial class CircularChartExt : SfCircularChart
             this.Series.Clear();
             foreach (var config in configs)
             {
-                //CreateSeries(config);
                 CreateSeriesFromTemplate(config);
             }
         }
@@ -52,49 +51,6 @@ public partial class CircularChartExt : SfCircularChart
                 series.BindingContext = config;
                 this.Series.Add(series);
             }
-        }
-    }
-
-    private void CreateSeries(SeriesConfig config)
-    {
-        ChartSeries series = null;
-
-        switch (config.Type)
-        {
-            case ChartEnums.SeriesType.Pie:
-                series = new PieSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-
-            case ChartEnums.SeriesType.Doughnut:
-                series = new DoughnutSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-
-            case ChartEnums.SeriesType.RadialBar:
-                series = new RadialBarSeries
-                {
-                    ItemsSource = config.DataSource,
-                    XBindingPath = config.XPath,
-                    YBindingPath = "yvalue",
-                    EnableTooltip = config.Tooltip
-                };
-                break;
-        }
-
-        if (series != null)
-        {
-            this.Series.Add(series);
         }
     }
 }

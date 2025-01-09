@@ -4,8 +4,7 @@
              x:Class="ChartGenerator.MobileUI"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
               xmlns:local="clr-namespace:ChartGenerator"
-             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-             Title="MobileUI">
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core">
     <ContentPage.Resources>
         <LinearGradientBrush x:Key="strokeGradient"
  StartPoint="0,0" EndPoint="1,1">
@@ -34,8 +33,6 @@
                 <VerticalStackLayout Spacing="5" >
 
                     <Grid ColumnDefinitions="*" HorizontalOptions="FillAndExpand">
-                        <!--<Label Text="&#xe7e1;" FontFamily="MauiSampleFontIcon" Margin="5"
-                       Opacity="0.5" VerticalOptions="Start" HeightRequest="30" WidthRequest="30" IsVisible="True" />-->
                         <Editor Grid.Column="1" IsEnabled="{Binding IsDisable}"
                             BackgroundColor="Transparent"
                             HeightRequest="100"
@@ -46,17 +43,6 @@
                             FontSize="14"
                             TextColor="Black"
                         Margin="10" >
-                            <!--<VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup>
-                                <VisualState x:Name="Normal" />
-                                <VisualState x:Name="Disabled">
-                                    <VisualState.Setters>
-                                        <Setter Property="BackgroundColor" Value="LightGray" />
-                                        <Setter Property="TextColor" Value="DarkGray" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>-->
                         </Editor>
 
                         <core:SfBusyIndicator IsVisible="{Binding IsLoading}"
@@ -72,17 +58,6 @@
                         CornerRadius="10"
                         Command="{Binding CreateButtonClicked}"
                         HorizontalOptions="End" >
-                        <!--<VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup>
-                            <VisualState x:Name="Normal" />
-                            <VisualState x:Name="Disabled">
-                                <VisualState.Setters>
-                                    <Setter Property="Background" Value="Gray" />
-                                    <Setter Property="TextColor" Value="LightGray" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>-->
                     </Button>
                 </VerticalStackLayout>
             </Border>

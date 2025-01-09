@@ -31,12 +31,9 @@
                    HorizontalOptions="Center"
                    TextColor="Gray" />
 
-            <!--<Border Stroke="{StaticResource strokeGradient}" StrokeShape="RoundRectangle 10" Padding="5">-->
             <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
 
                     <Grid ColumnDefinitions="*" HorizontalOptions="FillAndExpand" Grid.Column="0">
-                        <!--<Label Text="&#xe7e1;" FontFamily="MauiSampleFontIcon" Margin="5"
-                           Opacity="0.5" VerticalOptions="Start" HeightRequest="30" WidthRequest="30" IsVisible="True" />-->
                         <Editor Grid.Column="1" IsEnabled="{Binding IsDisable}"
                                 BackgroundColor="Transparent"
                                 HeightRequest="100"
@@ -47,21 +44,10 @@
                                 FontSize="14"
                                 TextColor="Black"
                              >
-                            <!--<VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup>
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="Disabled">
-                                        <VisualState.Setters>
-                                            <Setter Property="BackgroundColor" Value="LightGray" />
-                                            <Setter Property="TextColor" Value="DarkGray" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>-->
                         </Editor>
 
-                        <core:SfBusyIndicator IsVisible="{Binding IsLoading}"
-                                              IsRunning="True"
+                        <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
+                                              IsVisible="{Binding IsLoading}"
                                               AnimationType="SingleCircle"
     />
                     </Grid>
@@ -79,20 +65,8 @@
                                   WidthRequest="40"
                                   FontSize="18"
                             Grid.Column="1">
-                        <!--<VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup>
-                                <VisualState x:Name="Normal" />
-                                <VisualState x:Name="Disabled">
-                                    <VisualState.Setters>
-                                        <Setter Property="Background" Value="Gray" />
-                                        <Setter Property="TextColor" Value="LightGray" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>-->
                     </buttons:SfButton>
                 </Grid>
-            <!--</Border>-->
 
             <HorizontalStackLayout Spacing="10"
                                        HorizontalOptions="Center"
