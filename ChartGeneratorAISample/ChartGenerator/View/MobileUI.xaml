@@ -4,8 +4,7 @@
              x:Class="ChartGenerator.MobileUI"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
               xmlns:local="clr-namespace:ChartGenerator"
-             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-             Title="MobileUI">
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core">
     <ContentPage.Resources>
         <LinearGradientBrush x:Key="strokeGradient"
  StartPoint="0,0" EndPoint="1,1">

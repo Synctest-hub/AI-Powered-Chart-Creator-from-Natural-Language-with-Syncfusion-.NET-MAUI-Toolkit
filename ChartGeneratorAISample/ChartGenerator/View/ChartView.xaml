@@ -137,14 +137,14 @@
                             <HorizontalStackLayout x:Name="listView"
                                               HeightRequest="{OnPlatform WinUI=140, Android=160, MacCatalyst=180, iOS=150}"
                                               WidthRequest="{OnPlatform MacCatalyst= 430,Android=335, iOS=310}"
-                                              HorizontalOptions="Center"
+                                              HorizontalOptions="Center" Padding="{OnPlatform MacCatalyst=20}"
                                               BindableLayout.ItemsSource="{Binding Path=ModelPrompts}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Grid Padding="4">
                                             <Border
-                                             WidthRequest="{OnPlatform WinUI=120,Android=150,MacCatalyst= 200 , iOS=140}"
-                                             HeightRequest="{OnPlatform WinUI=120,Android=130, MacCatalyst= 150, iOS=120}"
+                                             WidthRequest="{OnPlatform WinUI=120,Android=150,MacCatalyst= 150 , iOS=140}"
+                                             HeightRequest="{OnPlatform WinUI=120,Android=130, MacCatalyst= 100, iOS=120}"
                                              Stroke="Gray"
                                              Padding="4">
                                                 <Border.GestureRecognizers>
