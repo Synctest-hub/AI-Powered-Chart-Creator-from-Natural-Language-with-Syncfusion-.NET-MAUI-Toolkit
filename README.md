@@ -21,7 +21,10 @@ Syncfusion .NET MAUI Charts are a powerful suite of controls for building cross-
 1. **Input**: Provide a natural language description of the chart, e.g., “Create a line chart for monthly sales.”  
 2. **AI Processing**: The AI interprets the request and generates a JSON configuration.  
 3. **Rendering**: The JSON is processed by Syncfusion’s .NET MAUI Charts to display the desired chart.  
-4. **Real-Time Updates**: Use .NET MAUI AI AssistView to modify or refine the chart dynamically.  
+4. **Real-Time Updates**: Use .NET MAUI AI AssistView to modify or refine the chart dynamically.
+
+![AI-Powered-Charts-using-Natural-Language-Processing-in-Syncfusion-for- NET-MAUI](https://github.com/user-attachments/assets/424f0c85-dbde-4c80-9cab-e8f75d0d53d9)
+
 
 ### Save Time and Enhance Productivity  
 AI-powered natural language chart generation transforms the way developers and users visualize data. By eliminating the need for manual design and coding, this approach saves time, boosts productivity, and allows users to focus on what truly matters—data-driven insights.  
