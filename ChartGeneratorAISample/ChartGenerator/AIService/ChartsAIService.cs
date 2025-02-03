@@ -1,5 +1,6 @@
-﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
+﻿using Azure.AI.OpenAI;
+using Azure;
+using Microsoft.Extensions.AI;
 
 namespace ChartGenerator
 {
@@ -28,26 +29,6 @@ namespace ChartGenerator
         internal const string key = "API key";
 
         /// <summary>
-        /// The chat completion service
-        /// </summary>
-        private IChatCompletionService? chatCompletions;
-
-        /// <summary>
-        /// The kernal
-        /// </summary>
-        private Kernel? kernel;
-
-        /// <summary>
-        /// The chat histroy
-        /// </summary>
-        private ChatHistory? chatHistory;
-
-        /// <summary>
-        /// The credential valid field
-        /// </summary>
-        private static bool isCredentialValid;
-
-        /// <summary>
         /// The already credential validated field
         /// </summary>
         private static bool isAlreadyValidated;
@@ -66,66 +47,11 @@ namespace ChartGenerator
 
         #region Properties
 
-        /// <summary>
-        /// Gets or Set a value indicating whether an credentials are valid or not.
-        /// Returns <c>true</c> if the credentials are valid; otherwise, <c>false</c>.
-        /// </summary>
-        public static bool IsCredentialValid
-        {
-            get
-            {
-                return isCredentialValid;
-            }
-            set
-            {
-                isCredentialValid = value;
-            }
-        }
+        internal IChatClient? Client { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating the chat history object
-        /// </summary>
-        public ChatHistory? ChatHistory
-        {
-            get
-            {
-                return chatHistory;
-            }
-            set
-            {
-                chatHistory = value;
-            }
-        }
+        internal string? ChatHistory { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating the chat completions object
-        /// </summary>
-        public IChatCompletionService? ChatCompletions
-        {
-            get
-            {
-                return chatCompletions;
-            }
-            set
-            {
-                chatCompletions = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating the kernal object
-        /// </summary>
-        public Kernel? Kernel
-        {
-            get
-            {
-                return kernel;
-            }
-            set
-            {
-                kernel = value;
-            }
-        }
+        internal static bool IsCredentialValid { get; set; }
 
         #endregion
 
@@ -136,40 +62,31 @@ namespace ChartGenerator
         /// </summary>
         private async void ValidateCredential()
         {
-            #region Azure OpenAI
-            // Use below method for Azure Open AI
             this.GetAzureOpenAIKernal();
-            #endregion
 
             if (isAlreadyValidated)
             {
                 return;
             }
-            bool isValidUri = Uri.TryCreate(endpoint, UriKind.Absolute, out uriResult)
-                 && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
-            if (!isValidUri || !endpoint.Contains("http") || string.IsNullOrEmpty(key) || key.Contains("API key") || string.IsNullOrEmpty(deploymentName) || deploymentName.Contains("deployment name") || string.IsNullOrEmpty(imageDeploymentName))
-            {
-                ShowAlertAsync();
-                return;
-            }
             try
             {
-                if (ChatHistory != null && chatCompletions != null)
+                if (Client != null)
                 {
-                    // test the semantic kernal with message.
-                    ChatHistory.AddSystemMessage("Hello, Test Check");
-                    await chatCompletions.GetChatMessageContentAsync(chatHistory: ChatHistory, kernel: kernel);
+                    await Client!.CompleteAsync("Hello, Test Check");
+                    ChatHistory = string.Empty;
+                    IsCredentialValid = true;
+                    isAlreadyValidated = true;
+                }
+                else
+                {
+                    ShowAlertAsync();
                 }
             }
             catch (Exception)
             {
-                // Handle any exceptions that indicate the credentials or endpoint are invalid.               
-                ShowAlertAsync();
                 return;
             }
-            IsCredentialValid = true;
-            isAlreadyValidated = true;
         }
 
         #region Azure OpenAI
@@ -178,15 +95,14 @@ namespace ChartGenerator
         /// </summary>
         private void GetAzureOpenAIKernal()
         {
-            // Create the chat history
-            chatHistory = new ChatHistory();
-            var builder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(deploymentName, endpoint, key);
-
-            // Get the kernal from build
-            kernel = builder.Build();
-
-            //Get the chat completions from kernal
-            chatCompletions = kernel.GetRequiredService<IChatCompletionService>();
+            try
+            {
+                var client = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key)).AsChatClient(modelId: deploymentName);
+                this.Client = client;
+            }
+            catch (Exception)
+            {
+            }
         }
         #endregion
 
@@ -197,23 +113,21 @@ namespace ChartGenerator
         /// <returns>The AI response.</returns>
         internal async Task<string> GetAnswerFromGPT(string userPrompt)
         {
-            if (IsCredentialValid && ChatCompletions != null && ChatHistory != null)
+            try
             {
-                ChatHistory.Clear();
-
-                // Add the user's prompt as a user message to the conversation.
-                ChatHistory.AddUserMessage(userPrompt);
-                try
+                if (IsCredentialValid && ChatHistory != null && Client != null)
                 {
-                    //// Send the chat completion request to the OpenAI API and await the response.
-                    var response = await ChatCompletions.GetChatMessageContentAsync(chatHistory: ChatHistory, kernel: Kernel);
+                    ChatHistory = string.Empty;
+                    // Add the system message and user message to the options
+                    ChatHistory = ChatHistory + userPrompt;
+                    var response = await Client.CompleteAsync(ChatHistory);
                     return response.ToString();
                 }
-                catch
-                {
-                    // If an exception occurs (e.g., network issues, API errors), return an empty string.
-                    return "";
-                }
+            }
+            catch
+            {
+                // If an exception occurs (e.g., network issues, API errors), return an empty string.
+                return "";
             }
 
             return "";
@@ -224,15 +138,14 @@ namespace ChartGenerator
         /// </summary>
         private async void ShowAlertAsync()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Application.Current?.MainPage != null && !IsCredentialValid)
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null && !IsCredentialValid)
             {
                 isAlreadyValidated = true;
-                await Application.Current.MainPage.DisplayAlert("Alert", "The Azure API key or endpoint is missing or incorrect. Please verify your credentials. You can also continue with the offline data.", "OK");
+                await page.DisplayAlert("Alert", "The Azure API key or endpoint is missing or incorrect. Please verify your credentials. You can also continue with the offline data.", "OK");
             }
-#pragma warning restore CS0618 // Type or member is obsolete
         }
-
-        #endregion
     }
+
+    #endregion
 }
