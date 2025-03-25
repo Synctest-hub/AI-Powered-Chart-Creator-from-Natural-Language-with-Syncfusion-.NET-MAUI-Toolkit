@@ -21,7 +21,7 @@ namespace ChartGenerator
         private bool isLoading;
         private ObservableCollection<IAssistItem> messages = new();
 
-        private ChartAIService semanticKernalService = new();
+        private ChartAIService openAIService = new();
 
         public string? EntryText
         {
@@ -269,7 +269,7 @@ namespace ChartGenerator
                             + "- Only plain text should be used; no need to specify 'json' above the data."
                             + "- No additional content other than json data should be included!";
 
-            var response = await semanticKernalService.GetAnswerFromGPT(prompt);
+            var response = await openAIService.GetAnswerFromGPT(prompt);
 
             return response.ToString();
         }
@@ -344,7 +344,7 @@ namespace ChartGenerator
                 + "- No additional content other than json data should be included!";
 
             // Call the method to get the AI response
-            var response = await semanticKernalService.GetAnswerFromGPT(prompt);
+            var response = await openAIService.GetAnswerFromGPT(prompt);
 
             // Convert the response to a string (assuming the response has a ToString method)
             return response.ToString();
