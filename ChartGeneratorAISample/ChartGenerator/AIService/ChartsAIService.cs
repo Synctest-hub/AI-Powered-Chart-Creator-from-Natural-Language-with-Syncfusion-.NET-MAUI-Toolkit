@@ -115,7 +115,7 @@ namespace ChartGenerator
         {
             try
             {
-                if (IsCredentialValid && ChatHistory != null && Client != null)
+                if (IsCredentialValid && Client != null)
                 {
                     ChatHistory = string.Empty;
                     // Add the system message and user message to the options
