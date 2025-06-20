@@ -68,6 +68,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Syncfusion.Maui.AIAssistView" Version="29.2.11" />
 		<PackageReference Include="Syncfusion.Maui.PdfViewer" Version="*" />
+		<PackageReference Include="Syncfusion.Maui.Popup" Version="*" />
 		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="*" />
 	</ItemGroup>
 

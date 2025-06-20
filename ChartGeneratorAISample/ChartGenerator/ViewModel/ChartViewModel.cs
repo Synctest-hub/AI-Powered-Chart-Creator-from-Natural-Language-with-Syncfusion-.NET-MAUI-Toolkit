@@ -2,14 +2,15 @@
 using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Input;
-
+using System.Windows.Input; 
+using Syncfusion.Maui.Popup;
 namespace ChartGenerator
 {
     public class ChartViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private bool canStopResponse;
         private string sendIconText;
         private bool autoSuggestionPopupIsOpen;
         private string inputText;
@@ -174,6 +175,7 @@ namespace ChartGenerator
             }
         }
 
+        public Command<object> SendButtonCommand { get; set; }
         public ICommand ButtonClicked { get; }
         public ICommand CreateButtonClicked { get; }
         public ICommand AiButtonClicked { get; }
@@ -183,7 +185,8 @@ namespace ChartGenerator
         public Command<object> EditorOptionsComamnd { get; set; }
         public ObservableCollection<Option> EditorOptions { get; set; }
         public Command<object> AttachmentContextMenuCommand { get; set; } 
-        public Command<object> EditorExpandCollapseCommand { get; set; }
+        public Command<object> EditorExpandCollapseCommand { get; set; } 
+        public Command<object> CancelImageSelected { get; set; }
         public ObservableCollection<ImageSource> ImageSourceCollection
         {
             get
@@ -205,6 +208,19 @@ namespace ChartGenerator
                 OnPropertyChanged(nameof(AutoSuggestionPopupIsOpen));
             }
         }
+        public bool CanStopResponse
+        {
+            get
+            {
+                return canStopResponse;
+            }
+            set
+            {
+                canStopResponse = value;
+                OnPropertyChanged(nameof(CanStopResponse));
+            }
+        }
+
         public bool HasImageUploaded
         {
             get { return this.ImageSourceCollection.Count > 0; }
@@ -219,6 +235,8 @@ namespace ChartGenerator
             RefreshButtonClicked = new Command(OnRefreshButtonClicked); 
             EditorOptionsComamnd = new Command<object>(ExecuteEditorOptionsCommand);
 
+            CancelImageSelected = new Command<object>(ExecuteCancelImageSelectedCommand);
+            SendButtonCommand = new Command<object>(ExecuteSendButtonCommand);
             EditorExpandCollapseCommand = new Command<object>(ExecuteEditorExpandCollapseCommand);
             _imagePickerHelper = new ImagePickerHelper(); 
             this.ImageSourceCollection = new ObservableCollection<ImageSource>();
@@ -231,10 +249,190 @@ namespace ChartGenerator
                 "Change the chart title to 'Sales by Region'",
             };
         }
+        public void ExecuteCancelImageSelectedCommand(object obj)
+        {
+            this.ImageSourceCollection.Remove(obj as ImageSource);
+            OnPropertyChanged(nameof(this.HasImageUploaded));
+            this.UpdateSendIcon(this.InputText);
+        }
+        private SfPopup ExpandedEditorPopup;
+        private void ExecuteSendButtonCommand(object obj)
+        {
+            var text = this.InputText;
+            if (this.isResponseStreaming)
+            {
+                this.CanStopResponse = true;
+            }
+            else
+            {
+                this.CanStopResponse = false;
+            }
+            if (string.IsNullOrWhiteSpace(text) && !HasImageUploaded)
+            {
+                return;
+            }
 
+            if (this.ExpandedEditorPopup != null && this.ExpandedEditorPopup.IsOpen)
+            {
+                this.ExpandedEditorPopup.Dismiss();
+            }
+
+            if (!HasImageUploaded)
+            {
+                var requestItem = new AssistItem()
+                {
+                    Text = text,
+                    IsRequested = true
+                };
+                this.SendRequest(requestItem, obj);
+            }
+            else
+            {
+                foreach (var imageSource in this.ImageSourceCollection)
+                {
+                    var requestItem = new AssistImageItem()
+                    {
+                        Source = imageSource,
+                        IsRequested = true,
+                        Text = text
+                    };
+                    this.SendRequest(requestItem, obj);
+                }
+                this.ImageSourceCollection.Clear();
+            }
+        }
+
+        private ObservableCollection<Option> optionsContextMenu;
+        public ObservableCollection<Option> OptionsContextMenu
+        {
+            get
+            {
+                return optionsContextMenu;
+            }
+            set
+            {
+                optionsContextMenu = value;
+                OnPropertyChanged(nameof(OptionsContextMenu));
+            }
+        }
+        private async void SendRequest(AssistItem requestItem, object obj)
+        {
+            if (this.isResponseStreaming)
+            {
+                return;
+            }
+            this.isResponseStreaming = true;
+            this.Messages.Add(requestItem);
+            if (OptionsContextMenu.Count <= 2)
+                PopulateOptionsContextMenu();
+            this.InputText = string.Empty;
+            await this.GetResult(requestItem, obj).ConfigureAwait(true);
+        }
+
+        private bool isNewChatEnabled;
+        private bool isHeaderVisible = true;
+        public bool IsNewChatEnabled
+        {
+            get
+            {
+                return isNewChatEnabled;
+            }
+            set
+            {
+                isNewChatEnabled = value;
+                OnPropertyChanged(nameof(IsNewChatEnabled));
+            }
+        }
+        public bool IsHeaderVisible
+        {
+            get
+            {
+                return isHeaderVisible;
+            }
+            set
+            {
+                isHeaderVisible = value;
+                if (!value)
+                {
+                    this.IsNewChatEnabled = true;
+                }
+                else
+                {
+                    this.IsNewChatEnabled = false;
+                }
+                OnPropertyChanged(nameof(IsHeaderVisible));
+            }
+        }
+        
+        internal async Task GetResult(object inputQuery, object assistView)
+        { 
+        }
+
+        public bool IsTemporaryChatEnabled
+        {
+            get
+            {
+                return isTemporaryChatEnabled;
+            }
+            set
+            {
+                isTemporaryChatEnabled = value;
+                OnPropertyChanged(nameof(IsTemporaryChatEnabled));
+            }
+        }
+        private bool isTemporaryChatEnabled;
+        private SfPopup OptionsPopup;
+        private void PopulateOptionsContextMenu(bool isChatHistoryItemPressed = false)
+        {
+            OptionsContextMenu = new ObservableCollection<Option>();
+            if (isChatHistoryItemPressed)
+            {
+                if (this.OptionsPopup != null)
+                {
+                    this.OptionsPopup.WidthRequest = 130;
+                }
+                OptionsContextMenu.Add(new Option() { Name = "Rename", Icon = "\ue73d" });
+                OptionsContextMenu.Add(new Option() { Name = "Archive", Icon = "\ue777" });
+                OptionsContextMenu.Add(new Option() { Name = "Delete", Icon = "\ue73c" });
+            }
+            else if (Messages != null && Messages.Count > 0 && !IsTemporaryChatEnabled)
+            {
+                if (this.OptionsPopup != null)
+                {
+                    this.OptionsPopup.WidthRequest = 190;
+                }
+                OptionsContextMenu.Add(new Option() { Name = "View Details", Icon = "\ue719" });
+                //OptionsContextMenu.Add(new Option() { Name = "Share", Icon = "\ue770" });
+                OptionsContextMenu.Add(new Option() { Name = "Rename", Icon = "\ue73d", CanShowSeparator = true });
+                OptionsContextMenu.Add(new Option() { Name = "Archive", Icon = "\ue777" });
+                OptionsContextMenu.Add(new Option() { Name = "Delete", Icon = "\ue73c" });
+                //OptionsContextMenu.Add(new Option() { Name = "Move to project", Icon = "\ue72e" });
+                OptionsContextMenu.Add(new Option() { Name = "Temporary Chat", Icon = "\ue7e9", CanShowSeparator = true });
+            }
+            else
+            {
+                if (this.OptionsPopup != null)
+                {
+                    this.OptionsPopup.WidthRequest = 190;
+                }
+                OptionsContextMenu.Add(new Option() { Name = "View Details", Icon = "\ue719" });
+                OptionsContextMenu.Add(new Option() { Name = "Temporary Chat", Icon = "\ue7e9", CanShowSeparator = true });
+            }
+        }
         private void ExecuteEditorExpandCollapseCommand(object obj)
         {
-          
+            var editor = obj as CustomEditor;
+            this.ExpandedEditorPopup = App.Current.Resources["EditorExpandPopup"] as SfPopup;
+            this.ExpandedEditorPopup.BindingContext = this;
+            if (!this.ExpandedEditorPopup.IsOpen)
+            {
+                this.ExpandedEditorPopup.Show(true);
+                editor.Focus();
+            }
+            else
+            {
+                this.ExpandedEditorPopup.Dismiss();
+            }
         }
 
         private void OnAttachmentContextMenuTapCommand(object eventArgs)

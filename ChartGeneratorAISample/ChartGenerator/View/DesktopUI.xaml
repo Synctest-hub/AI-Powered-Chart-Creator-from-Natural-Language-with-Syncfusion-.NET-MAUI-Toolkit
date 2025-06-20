@@ -34,23 +34,55 @@
             <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
 
                     <Grid RowDefinitions="Auto,*,Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
-                    <core:SfChip  
-                                  Text="&#xe7CD;" 
-                                  FontFamily="MauiSampleFontIcon"
-                                  VerticalOptions="Start"
-                                  HorizontalOptions="Center"
-                                  VerticalTextAlignment="Center"
-                                  HorizontalTextAlignment="Center"
-                                  CornerRadius="20"
-                                  Stroke="Transparent"
-                                  StrokeThickness="0"
-                                  HeightRequest="30"
-                                  WidthRequest="30"
-                                  Margin="10"
-                                  Grid.Row="1"
-                                  Command="{Binding EditorExpandCollapseCommand}"
-                                  CommandParameter="{x:Reference editor}"
-                                  />
+                    <StackLayout BindableLayout.ItemsSource="{Binding ImageSourceCollection}"
+              Grid.Row="1"
+             Margin="5,5,5,0"
+             IsVisible="{Binding HasImageUploaded}" 
+             Orientation="Horizontal">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Grid HeightRequest="60"
+                  WidthRequest="60" x:Name="border"
+                  ColumnDefinitions="Auto"
+                  HorizontalOptions="Start">
+                                    <Border Stroke="Transparent"
+                        StrokeThickness="0"
+                        WidthRequest="50"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10"/>
+                                        </Border.StrokeShape>
+
+                                        <Image Source="{Binding .}"
+                           WidthRequest="50" 
+                           HeightRequest="50"
+                           Aspect="Fill"/>
+                                    </Border>
+                                    <core:SfBadgeView HorizontalOptions="End"
+                                      WidthRequest="60" 
+                                      VerticalOptions="Start">
+                                        <core:SfBadgeView.Content>
+                                            <StackLayout HorizontalOptions="End" 
+                                     HeightRequest="16" 
+                                     WidthRequest="16">
+                                                <StackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={x:Reference editor}, Path=BindingContext.CancelImageSelected}"
+                      CommandParameter="{Binding .}"/>
+                                                </StackLayout.GestureRecognizers>
+                                            </StackLayout>
+                                        </core:SfBadgeView.Content>
+                                        <core:SfBadgeView.BadgeSettings>
+                                            <core:BadgeSettings Position="TopRight" 
+                                            FontSize="10" 
+                                            Icon="Delete"/>
+                                        </core:SfBadgeView.BadgeSettings>
+                                    </core:SfBadgeView>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
                     <Editor Grid.Row="2" IsEnabled="{Binding IsDisable}"  x:Name="editor"
                                 BackgroundColor="Transparent"
                                 HeightRequest="100"
@@ -62,6 +94,7 @@
                                 TextColor="Black">
                        
                     </Editor>
+                   
 
                     <core:SfChipGroup ItemHeight="40" Margin="5,50,5,5" 
                                     ChipCornerRadius="20" 
