@@ -69,6 +69,7 @@
 		<PackageReference Include="SampleBrowser.Maui.Base" Version="*" />
 		<PackageReference Include="Syncfusion.Maui.AIAssistView" Version="*" />
 		<PackageReference Include="Syncfusion.Maui.PdfViewer" Version="*" />
+		<PackageReference Include="Syncfusion.Maui.Popup" Version="*" />
 		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="*" />
 	</ItemGroup>
 
