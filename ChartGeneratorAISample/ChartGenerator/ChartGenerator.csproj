@@ -66,8 +66,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="SampleBrowser.Maui.Base" Version="*" />
-		<PackageReference Include="Syncfusion.Maui.AIAssistView" Version="*" />
+		<PackageReference Include="Syncfusion.Maui.AIAssistView" Version="29.2.11" />
 		<PackageReference Include="Syncfusion.Maui.PdfViewer" Version="*" />
 		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="*" />
 	</ItemGroup>
