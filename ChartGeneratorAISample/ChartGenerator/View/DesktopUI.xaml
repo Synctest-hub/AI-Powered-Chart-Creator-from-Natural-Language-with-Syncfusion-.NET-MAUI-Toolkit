@@ -33,24 +33,72 @@
 
             <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
 
-                    <Grid ColumnDefinitions="*" HorizontalOptions="FillAndExpand" Grid.Column="0">
-                        <Editor Grid.Column="1" IsEnabled="{Binding IsDisable}"
+                    <Grid RowDefinitions="Auto,*,Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
+                    <core:SfChip  
+                                  Text="&#xe7CD;" 
+                                  FontFamily="MauiSampleFontIcon"
+                                  VerticalOptions="Start"
+                                  HorizontalOptions="Center"
+                                  VerticalTextAlignment="Center"
+                                  HorizontalTextAlignment="Center"
+                                  CornerRadius="20"
+                                  Stroke="Transparent"
+                                  StrokeThickness="0"
+                                  HeightRequest="30"
+                                  WidthRequest="30"
+                                  Margin="10"
+                                  Grid.Row="1"
+                                  Command="{Binding EditorExpandCollapseCommand}"
+                                  CommandParameter="{x:Reference editor}"
+                                  />
+                    <Editor Grid.Row="2" IsEnabled="{Binding IsDisable}"  x:Name="editor"
                                 BackgroundColor="Transparent"
                                 HeightRequest="100"
                                 PlaceholderColor="Gray"
                                 Text="{Binding EntryText}"
                                 Placeholder="Describe what you want to create.."
                                 HorizontalOptions="FillAndExpand"
-                                FontSize="14"
-                                TextColor="Black"
-                             >
-                        </Editor>
+                                FontSize="14"  
+                                TextColor="Black">
+                       
+                    </Editor>
 
-                        <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
+                    <core:SfChipGroup ItemHeight="40" Margin="5,50,5,5" 
+                                    ChipCornerRadius="20" 
+                                    ChipBackground="Transparent" 
+                                    ChipStrokeThickness="0"  
+                                    Grid.Row="3"
+                                    ChipPadding="0"
+                                    ChipClicked="OnChipClicked"
+                                    ItemsSource="{Binding Path=EditorOptions}">         
+                        <core:SfChipGroup.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="editorOptionGrid" ColumnDefinitions="Auto,Auto">
+                                    <Label x:Name="editorOptions"
+                                         Text="{Binding Icon}"
+                                         VerticalTextAlignment="Center" 
+                                         HorizontalTextAlignment="Center" 
+                                         HorizontalOptions="Center" 
+                                         FontFamily="MauiSampleFontIcon" 
+                                         TextColor="#611C1B1F"
+                                         FontSize="20"
+                                         WidthRequest="40"   >
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={x:Reference editor}, Path=BindingContext.AttachmentContextMenuCommand}" CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+
+                                    </Label>
+                                    
+                                
+                                </Grid>
+                            </DataTemplate>
+                        </core:SfChipGroup.ItemTemplate>
+                    </core:SfChipGroup>
+                    <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
                                               IsVisible="{Binding IsLoading}"
-                                              AnimationType="SingleCircle"
-    />
-                    </Grid>
+                                              AnimationType="SingleCircle"/>
+                   
+                </Grid>
 
                 <buttons:SfButton Text="&#xe76f;" 
                          FontFamily="MauiSampleFontIcon" 

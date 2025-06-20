@@ -192,22 +192,35 @@
                             Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
                             VerticalOptions="Center"
                             HorizontalOptions="Center"/>
-            
-            <buttons:SfButton
-                Grid.Row="0"
-                Margin="0,0,20,0"
-                Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
-                x:Name="aibutton"
-                Text="&#xe7e1;" 
-                FontFamily="MauiSampleFontIcon" 
-                CornerRadius="5" 
-                BackgroundColor="#CAC4D0"
-                FontSize="{OnPlatform WinUI=20, Android=15, MacCatalyst=20, iOS=20}" WidthRequest="30" HeightRequest="30"
-                ToolTipProperties.Text="Click to open AI assistant"  
-                FontAttributes="Bold" 
-                VerticalOptions="Start"
-                HorizontalOptions="End"/>
-        </Grid>
+                <buttons:SfButton  Grid.Row="0"
+                                     Margin="0,0,60,0"
+                                     Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
+                                     x:Name="exportchartbutton"
+                                     Text="Export Chart" 
+                                     Clicked="Exportchartbutton_Clicked"
+                                     FontFamily="MauiSampleFontIcon" 
+                                     CornerRadius="5" 
+                                     TextColor="White"
+                                     BackgroundColor="#6750a4"
+                                     FontSize="{OnPlatform WinUI=17, Android=15, MacCatalyst=17, iOS=17}" WidthRequest="120" HeightRequest="30"
+                                     ToolTipProperties.Text="Click to Export the Chart"  
+                                     FontAttributes="Bold"                                      VerticalOptions="Start"
+                                     HorizontalOptions="End"/>
+                <buttons:SfButton
+                                Grid.Row="0"
+                                Margin="0,0,20,0"
+                                Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
+                                x:Name="aibutton"
+                                Text="&#xe7e1;" 
+                                FontFamily="MauiSampleFontIcon" 
+                                CornerRadius="5" 
+                                BackgroundColor="#CAC4D0"
+                                FontSize="{OnPlatform WinUI=20, Android=15, MacCatalyst=20, iOS=20}" WidthRequest="30" HeightRequest="30"
+                                ToolTipProperties.Text="Click to open AI assistant"  
+                                FontAttributes="Bold" 
+                                VerticalOptions="Start"
+                                HorizontalOptions="End"/>
+            </Grid>
     </Grid>
     </ContentPage.Content>
 

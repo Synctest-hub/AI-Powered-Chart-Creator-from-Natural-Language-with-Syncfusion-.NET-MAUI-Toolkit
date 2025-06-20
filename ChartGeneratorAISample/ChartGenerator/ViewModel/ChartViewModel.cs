@@ -10,6 +10,12 @@ namespace ChartGenerator
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private string sendIconText;
+        private bool autoSuggestionPopupIsOpen;
+        private string inputText;
+        private ObservableCollection<ImageSource> imageSourceCollection;
+        private readonly ImagePickerHelper _imagePickerHelper;
+        private int imageNo;
         private string? entryText;
         private bool showAssistView;
         private bool showHeader = true;
@@ -21,7 +27,43 @@ namespace ChartGenerator
         private bool isLoading;
         private ObservableCollection<IAssistItem> messages = new();
 
+        private bool isSendIconEnabled;
+        internal bool isResponseStreaming;
+        private double sendIconWidth;
         private ChartAIService openAIService = new();
+        public double SendIconWidth
+        {
+            get { return sendIconWidth; }
+            set
+            {
+                sendIconWidth = value;
+                OnPropertyChanged(nameof(SendIconWidth));
+            }
+        }
+        public bool IsSendIconEnabled
+        {
+            get
+            {
+                return isSendIconEnabled;
+            }
+            set
+            {
+                isSendIconEnabled = value;
+                OnPropertyChanged(nameof(IsSendIconEnabled));
+            }
+        }
+        public string SendIconText
+        {
+            get
+            {
+                return sendIconText;
+            }
+            set
+            {
+                sendIconText = value;
+                OnPropertyChanged(nameof(SendIconText));
+            }
+        }
 
         public string? EntryText
         {
@@ -137,8 +179,36 @@ namespace ChartGenerator
         public ICommand AiButtonClicked { get; }
         public ICommand CloseButtonClicked { get; }
         public ICommand RefreshButtonClicked { get; }
-        public ICommand RequestCommand { get; }
-
+        public ICommand RequestCommand { get; } 
+        public Command<object> EditorOptionsComamnd { get; set; }
+        public ObservableCollection<Option> EditorOptions { get; set; }
+        public Command<object> AttachmentContextMenuCommand { get; set; } 
+        public Command<object> EditorExpandCollapseCommand { get; set; }
+        public ObservableCollection<ImageSource> ImageSourceCollection
+        {
+            get
+            {
+                return imageSourceCollection;
+            }
+            set
+            {
+                imageSourceCollection = value;
+                OnPropertyChanged(nameof(ImageSourceCollection));
+            }
+        }
+        public bool AutoSuggestionPopupIsOpen
+        {
+            get { return autoSuggestionPopupIsOpen; }
+            set
+            {
+                autoSuggestionPopupIsOpen = value;
+                OnPropertyChanged(nameof(AutoSuggestionPopupIsOpen));
+            }
+        }
+        public bool HasImageUploaded
+        {
+            get { return this.ImageSourceCollection.Count > 0; }
+        }
         public ChartViewModel()
         {
             ButtonClicked = new Command<string>(OnButtonClicked);
@@ -146,8 +216,15 @@ namespace ChartGenerator
             AiButtonClicked = new Command(OnAiButtonClicked);
             RequestCommand = new Command<object>(OnRequest);
             CloseButtonClicked = new Command(OnCloseButtonClicked);
-            RefreshButtonClicked = new Command(OnRefreshButtonClicked);
+            RefreshButtonClicked = new Command(OnRefreshButtonClicked); 
+            EditorOptionsComamnd = new Command<object>(ExecuteEditorOptionsCommand);
 
+            EditorExpandCollapseCommand = new Command<object>(ExecuteEditorExpandCollapseCommand);
+            _imagePickerHelper = new ImagePickerHelper(); 
+            this.ImageSourceCollection = new ObservableCollection<ImageSource>();
+            AttachmentContextMenuCommand = new Command<object>(OnAttachmentContextMenuTapCommand);
+            EditorOptions = new ObservableCollection<Option>();
+            EditorOptions.Add(new Option() { Name = "Attachment", Icon = "\ue754" });
             modelPrompts = new ObservableCollection<String>()
             {
                 "Remove legends from the chart",
@@ -155,6 +232,91 @@ namespace ChartGenerator
             };
         }
 
+        private void ExecuteEditorExpandCollapseCommand(object obj)
+        {
+          
+        }
+
+        private void OnAttachmentContextMenuTapCommand(object eventArgs)
+        {
+            var chipText = eventArgs as Option;
+
+            EditorOptions[0].IsOpen = false;
+            ShowImagePicker();
+
+        } 
+
+        private async void ShowImagePicker()
+        {
+#if ANDROID || WINDOWS || (IOS && !MACCATALYST)
+            string filePath = Path.Combine(FileSystem.AppDataDirectory, "image" + ++imageNo + ".jpg");
+
+            // Get and store the image from gallery
+            await _imagePickerHelper.SaveImageAsync(filePath);
+
+            var imageSource = ImageSource.FromFile(filePath);
+
+            this.ImageSourceCollection.Add(imageSource);
+
+            OnPropertyChanged(nameof(this.HasImageUploaded));
+
+            this.UpdateSendIcon(this.InputText);
+            //#elif MACCATALYST
+
+            //            // TODO: The file picker is not supported in Mac Catalyst. So, we have used the custom file picker.
+            //            // https://github.com/dotnet/maui/issues/11088
+            //            var result = await NativeHelper.ImagePickAsync();
+            //            if (string.IsNullOrEmpty(result))
+            //            {
+            //                return;
+            //            }
+
+            //            var imageSource = ImageSource.FromFile(result);            
+            //#else
+            await Task.Delay(1);
+#endif
+        }
+        public string InputText
+        {
+            get { return inputText; }
+            set
+            {
+                inputText = value;
+                UpdateSendIcon(inputText);
+                OnPropertyChanged(nameof(InputText));
+                //UpdateFilter();
+                AutoSuggestionPopupIsOpen = !string.IsNullOrEmpty(InputText) && this.Messages.Count == 0;
+            }
+        }
+        private void UpdateSendIcon(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input) && !this.HasImageUploaded)
+            {
+                //SendIconText = "\ue7E8" + " Voice"; // TODO:Need to add voice input support
+                SendIconText = "\ue710";
+                SendIconWidth = 40;
+                if (!this.isResponseStreaming)
+                {
+                    this.IsSendIconEnabled = false;
+                }
+
+            }
+            else if (!isResponseStreaming)
+            {
+                SendIconText = "\ue710";
+                SendIconWidth = 40;
+                this.IsSendIconEnabled = true;
+            }
+        }
+        private void ExecuteEditorOptionsCommand(object obj)
+        {
+            var chipText = obj as Option;
+
+            if (chipText.Name == "Attachment")
+            {
+                chipText.IsOpen = true;
+            } 
+        }
         private void OnButtonClicked(string buttonText)
         {
             EntryText = buttonText.Replace("\"", "").Replace("&quot;", "");
