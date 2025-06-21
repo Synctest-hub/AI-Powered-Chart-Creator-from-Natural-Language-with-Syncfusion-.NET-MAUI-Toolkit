@@ -3,18 +3,20 @@
                        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                        xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
                        xmlns:local="clr-namespace:ChartGenerator"
-                       x:Class="ChartGenerator.CircularChartExt"
-                       Title="{Binding Title}"
+                       x:Class="ChartGenerator.CircularCategory"
                        Source="{Binding Series}" >
+
+    <chart:SfCircularChart.Title>
+        <Label Text="{Binding Title}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+    </chart:SfCircularChart.Title>
 
     <chart:SfCircularChart.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <local:SeriesTemplates />
+                <local:ChartResources/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </chart:SfCircularChart.Resources>
-
     <chart:SfCircularChart.Legend>
         <chart:ChartLegend IsVisible="{Binding ShowLegend}" Placement="Left" ToggleSeriesVisibility="True"/>
     </chart:SfCircularChart.Legend>

@@ -1,37 +1,33 @@
-using Syncfusion.Maui.PdfViewer;
-using Microsoft.Maui.Controls.Internals;
-using Microsoft.Maui.Graphics;
 using Syncfusion.Maui.AIAssistView;
-using System.Drawing;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Graphics;
 using Syncfusion.Maui.Core;
 using Syncfusion.Maui.Core.Internals;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
 
 namespace ChartGenerator;
 
 public partial class ChartView : ContentPage
 {
     int count = 0;
-    ChartViewModel ViewModel;
-    public ChartView(ChartViewModel viewModel)
+    ChatViewModel ViewModel;
+    public ChartView(ChatViewModel viewModel)
     {
-        InitializeComponent();
         BindingContext = ViewModel = viewModel;
+        InitializeComponent();
     }
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        var appointmentData = (sender as Border)?.BindingContext as string;
-        AssistItem botMessage = new AssistItem() { Text = appointmentData, IsRequested = true, ShowAssistItemFooter = false };
+        var previousData = (sender as Border)?.BindingContext as string;
+        AssistItem botMessage = new AssistItem() { Text = previousData, IsRequested = true, ShowAssistItemFooter = false };
         ViewModel.Messages.Add(botMessage);
         ViewModel.ShowHeader = false;
-        ViewModel.OnRequest(appointmentData);
+        ViewModel.OnRequest(previousData);
     }
 
     private void close_Clicked(object sender, EventArgs e)
     {
-        if ((sender as Button)?.BindingContext is ChartViewModel model)
+        if ((sender as Button)?.BindingContext is ChatViewModel model)
         {
             model.ShowAssistView = false;
             headerView.IsVisible = false;
@@ -91,8 +87,8 @@ public class ChartTemplateSelector : DataTemplateSelector
         {
             return chartConfig.ChartType switch
             {
-                ChartEnums.ChartTypeEnum.Cartesian => CartesianChartTemplate,
-                ChartEnums.ChartTypeEnum.Circular => CircularChartTemplate,
+                ChartTypeEnum.Cartesian => CartesianChartTemplate,
+                ChartTypeEnum.Circular => CircularChartTemplate,
                 _ => null
             };
         }

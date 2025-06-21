@@ -6,14 +6,14 @@ namespace ChartGenerator;
 
 public class ChartConfig : INotifyPropertyChanged
 {
-    private ChartEnums.ChartTypeEnum chartType;
+    private ChartTypeEnum chartType;
     private string title;
-    private Axes xAxis;
-    private Axes yAxis;
     private ObservableCollection<SeriesConfig> series;
+    private ObservableCollection<AxisConfig> xAxis;
+    private ObservableCollection<AxisConfig> yAxis;
     private bool showLegend;
 
-    public ChartEnums.ChartTypeEnum ChartType
+    public ChartTypeEnum ChartType
     {
         get => chartType;
         set
@@ -25,7 +25,20 @@ public class ChartConfig : INotifyPropertyChanged
             }
         }
     }
+    private bool sideBySidePlacement = true;
 
+    public bool SideBySidePlacement
+    {
+        get => sideBySidePlacement;
+        set
+        {
+            if (sideBySidePlacement != value)
+            {
+                sideBySidePlacement = value;
+                OnPropertyChanged();
+            }
+        }
+    }
     public string Title
     {
         get => title;
@@ -39,7 +52,7 @@ public class ChartConfig : INotifyPropertyChanged
         }
     }
 
-    public Axes XAxis
+    public ObservableCollection<AxisConfig> XAxis
     {
         get => xAxis;
         set
@@ -52,7 +65,7 @@ public class ChartConfig : INotifyPropertyChanged
         }
     }
 
-    public Axes YAxis
+    public ObservableCollection<AxisConfig> YAxis
     {
         get => yAxis;
         set
@@ -91,6 +104,12 @@ public class ChartConfig : INotifyPropertyChanged
         }
     }
 
+    public ChartConfig()
+    {
+        XAxis = new ObservableCollection<AxisConfig>();
+        YAxis = new ObservableCollection<AxisConfig>();
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
@@ -117,7 +136,7 @@ public class Axes : INotifyPropertyChanged
         }
     }
 
-    public ChartEnums.AxisType Type
+    public AxisType Type
     {
         get;
         set;
@@ -156,4 +175,3 @@ public class Axes : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
-

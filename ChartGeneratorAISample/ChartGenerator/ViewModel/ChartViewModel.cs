@@ -1,15 +1,13 @@
-﻿using Newtonsoft.Json;
 using Syncfusion.Maui.AIAssistView;
+using Syncfusion.Maui.Popup;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Input; 
-using Syncfusion.Maui.Popup;
+using System.Windows.Input;
 namespace ChartGenerator
 {
-    public class ChartViewModel : INotifyPropertyChanged
+    public partial class ChatViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-
         private bool canStopResponse;
         private string sendIconText;
         private bool autoSuggestionPopupIsOpen;
@@ -21,7 +19,6 @@ namespace ChartGenerator
         private bool showAssistView;
         private bool showHeader = true;
         private bool showIndicator = false;
-        private ChartConfig chartData;
         private string oldJson;
         private string newJson;
         private bool enableAssistant;
@@ -31,7 +28,6 @@ namespace ChartGenerator
         private bool isSendIconEnabled;
         internal bool isResponseStreaming;
         private double sendIconWidth;
-        private ChartAIService openAIService = new();
         public double SendIconWidth
         {
             get { return sendIconWidth; }
@@ -83,16 +79,6 @@ namespace ChartGenerator
             {
                 showAssistView = value;
                 OnPropertyChanged(nameof(ShowAssistView));
-            }
-        }
-
-        public ChartConfig ChartData
-        {
-            get => chartData;
-            set
-            {
-                chartData = value;
-                OnPropertyChanged(nameof(ChartData));
             }
         }
 
@@ -181,11 +167,11 @@ namespace ChartGenerator
         public ICommand AiButtonClicked { get; }
         public ICommand CloseButtonClicked { get; }
         public ICommand RefreshButtonClicked { get; }
-        public ICommand RequestCommand { get; } 
+        public ICommand RequestCommand { get; }
         public Command<object> EditorOptionsComamnd { get; set; }
         public ObservableCollection<Option> EditorOptions { get; set; }
-        public Command<object> AttachmentContextMenuCommand { get; set; } 
-        public Command<object> EditorExpandCollapseCommand { get; set; } 
+        public Command<object> AttachmentContextMenuCommand { get; set; }
+        public Command<object> EditorExpandCollapseCommand { get; set; }
         public Command<object> CancelImageSelected { get; set; }
         public ObservableCollection<ImageSource> ImageSourceCollection
         {
@@ -225,20 +211,20 @@ namespace ChartGenerator
         {
             get { return this.ImageSourceCollection.Count > 0; }
         }
-        public ChartViewModel()
+        public ChatViewModel()
         {
             ButtonClicked = new Command<string>(OnButtonClicked);
             CreateButtonClicked = new Command(OnCreateButtonClicked);
             AiButtonClicked = new Command(OnAiButtonClicked);
             RequestCommand = new Command<object>(OnRequest);
             CloseButtonClicked = new Command(OnCloseButtonClicked);
-            RefreshButtonClicked = new Command(OnRefreshButtonClicked); 
+            RefreshButtonClicked = new Command(OnRefreshButtonClicked);
             EditorOptionsComamnd = new Command<object>(ExecuteEditorOptionsCommand);
 
             CancelImageSelected = new Command<object>(ExecuteCancelImageSelectedCommand);
             SendButtonCommand = new Command<object>(ExecuteSendButtonCommand);
             EditorExpandCollapseCommand = new Command<object>(ExecuteEditorExpandCollapseCommand);
-            _imagePickerHelper = new ImagePickerHelper(); 
+            _imagePickerHelper = new ImagePickerHelper();
             this.ImageSourceCollection = new ObservableCollection<ImageSource>();
             AttachmentContextMenuCommand = new Command<object>(OnAttachmentContextMenuTapCommand);
             EditorOptions = new ObservableCollection<Option>();
@@ -251,9 +237,53 @@ namespace ChartGenerator
         }
         public void ExecuteCancelImageSelectedCommand(object obj)
         {
-            this.ImageSourceCollection.Remove(obj as ImageSource);
-            OnPropertyChanged(nameof(this.HasImageUploaded));
-            this.UpdateSendIcon(this.InputText);
+            try
+            {
+                var imageToRemove = obj as ImageSource;
+                if (imageToRemove != null)
+                {
+                    // Remove the image from collection
+                    this.ImageSourceCollection.Remove(imageToRemove);
+
+                    // Notify property changes
+                    OnPropertyChanged(nameof(this.HasImageUploaded));
+
+                    // Update send icon status
+                    this.UpdateSendIcon(this.InputText);
+
+                    // Clean up file if it's a file source
+                    if (imageToRemove is FileImageSource fileSource)
+                    {
+                        try
+                        {
+                            string filePath = fileSource.File;
+                            if (File.Exists(filePath) && filePath.Contains(FileSystem.AppDataDirectory))
+                            {
+                                File.Delete(filePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Just log and continue if we can't delete the file
+                            Console.WriteLine($"Error deleting image file: {ex.Message}");
+                        }
+                    }
+
+                    // Provide haptic feedback if available
+                    try
+                    {
+                        HapticFeedback.Perform(HapticFeedbackType.Click);
+                    }
+                    catch
+                    {
+                        // Ignore if haptic feedback is not available
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error removing image: {ex.Message}");
+            }
         }
         private SfPopup ExpandedEditorPopup;
         private void ExecuteSendButtonCommand(object obj)
@@ -363,9 +393,9 @@ namespace ChartGenerator
                 OnPropertyChanged(nameof(IsHeaderVisible));
             }
         }
-        
+
         internal async Task GetResult(object inputQuery, object assistView)
-        { 
+        {
         }
 
         public bool IsTemporaryChatEnabled
@@ -442,23 +472,48 @@ namespace ChartGenerator
             EditorOptions[0].IsOpen = false;
             ShowImagePicker();
 
-        } 
+        }
 
         private async void ShowImagePicker()
         {
 #if ANDROID || WINDOWS || (IOS && !MACCATALYST)
-            string filePath = Path.Combine(FileSystem.AppDataDirectory, "image" + ++imageNo + ".jpg");
+            try
+            {
+                string filePath = Path.Combine(FileSystem.AppDataDirectory, "image" + ++imageNo + ".jpg");
 
-            // Get and store the image from gallery
-            await _imagePickerHelper.SaveImageAsync(filePath);
+                // Get and store the image from gallery - the method returns void, not bool
+                await _imagePickerHelper.SaveImageAsync(filePath);
 
-            var imageSource = ImageSource.FromFile(filePath);
+                // Check if the file exists after the operation to determine success
+                if (File.Exists(filePath))
+                {
+                    var imageSource = ImageSource.FromFile(filePath);
 
-            this.ImageSourceCollection.Add(imageSource);
+                    // Add the image to the collection
+                    this.ImageSourceCollection.Add(imageSource);
 
-            OnPropertyChanged(nameof(this.HasImageUploaded));
+                    // Notify property changes
+                    OnPropertyChanged(nameof(this.HasImageUploaded));
 
-            this.UpdateSendIcon(this.InputText);
+                    // Update the send icon status based on whether we have images or text
+                    this.UpdateSendIcon(this.InputText);
+
+                    // Provide haptic feedback if available
+                    try
+                    {
+                        HapticFeedback.Perform(HapticFeedbackType.Click);
+                    }
+                    catch
+                    {
+                        // Ignore if haptic feedback is not available
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error picking image: {ex.Message}");
+                // Could show a toast or notification to user here
+            }
             //#elif MACCATALYST
 
             //            // TODO: The file picker is not supported in Mac Catalyst. So, we have used the custom file picker.
@@ -488,23 +543,38 @@ namespace ChartGenerator
         }
         private void UpdateSendIcon(string input)
         {
+            // Update the send icon appearance based on input status
             if (string.IsNullOrWhiteSpace(input) && !this.HasImageUploaded)
             {
+                // No text and no images - default state
                 //SendIconText = "\ue7E8" + " Voice"; // TODO:Need to add voice input support
                 SendIconText = "\ue710";
                 SendIconWidth = 40;
+
+                // Only disable the icon if we're not streaming a response
                 if (!this.isResponseStreaming)
                 {
                     this.IsSendIconEnabled = false;
                 }
-
             }
             else if (!isResponseStreaming)
             {
+                // We have either text or images - enable send button
                 SendIconText = "\ue710";
                 SendIconWidth = 40;
                 this.IsSendIconEnabled = true;
+
+                // If we have images, make the send icon more prominent
+                if (this.HasImageUploaded)
+                {
+                    // Could set a different icon or style if desired
+                }
             }
+
+            // Update property notifications
+            OnPropertyChanged(nameof(SendIconText));
+            OnPropertyChanged(nameof(SendIconWidth));
+            OnPropertyChanged(nameof(IsSendIconEnabled));
         }
         private void ExecuteEditorOptionsCommand(object obj)
         {
@@ -513,76 +583,9 @@ namespace ChartGenerator
             if (chipText.Name == "Attachment")
             {
                 chipText.IsOpen = true;
-            } 
-        }
-        private void OnButtonClicked(string buttonText)
-        {
-            EntryText = buttonText.Replace("\"", "").Replace("&quot;", "");
-            OnCreateButtonClicked();
-        }
-
-        private async void OnCreateButtonClicked()
-        {
-            if (!string.IsNullOrEmpty(EntryText))
-            {
-                IsLoading = true;
-                ShowAssistView = false;
-                Messages.Clear();
-                showHeader = true;
-
-                if (ChartAIService.IsCredentialValid)
-                {
-                    EnableAssistant = true;
-                    await GetDataFromAI(EntryText);
-                }
-                else
-                {
-                    await Task.Delay(500);
-                    CreateOfflineChart(EntryText);
-                    AssistItem message = new() { Text = "Currently in offline mode...", ShowAssistItemFooter = false };
-                    Messages.Add(message);
-                }
-
-                Application.Current.MainPage.Navigation.PushAsync(new ChartView(this));
-                IsLoading = false;
             }
         }
 
-        internal void CreateOfflineChart(string entryText)
-        {
-            string response = string.Empty;
-
-            if (entryText.Contains("column"))
-            {
-                response = "{\n  \"chartType\": \"cartesian\",\n  \"title\": \"Revenue by Region\",\n  \"ShowLegend\": \"true\", \n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Region\"\n  },\n  \"yAxis\": {\n    \"title\": \"Revenue\",\n    \"type\": \"numerical\",\n    \"min\": 0\n  },\n  \"series\": [\n    {\n      \"type\": \"column\",\n      \"xpath\": \"region\",\n      \"dataSource\": [\n        { \"xvalue\": \"North America\", \"yvalue\": 120000 },\n        { \"xvalue\": \"Europe\", \"yvalue\": 90000 },\n        { \"xvalue\": \"Asia\", \"yvalue\": 70000 },\n        { \"xvalue\": \"South America\", \"yvalue\": 45000 },\n        { \"xvalue\": \"Australia\", \"yvalue\": 30000 }\n      ],\n      \"tooltip\": true\n    }\n  ]\n}";
-            }
-            else if (entryText.Contains("area"))
-            {
-                response = "{\n  \"chartType\": \"cartesian\",\n  \"title\": \"Farm Productivity Over Different Seasons\",\n  \"ShowLegend\": \"true\",\n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Seasons\"\n  },\n  \"yAxis\": {\n    \"title\": \"Productivity (tons)\",\n    \"type\": \"numerical\",\n    \"min\": 0\n, \n    \"max\": 200\n   },\n  \"series\": [\n    {\n      \"type\": \"area\",\n      \"xpath\": \"season\",\n      \"dataSource\": [\n        { \"xvalue\": \"Spring\", \"yvalue\": 120 },\n        { \"xvalue\": \"Summer\", \"yvalue\": 150 },\n        { \"xvalue\": \"Autumn\", \"yvalue\": 130 },\n        { \"xvalue\": \"Winter\", \"yvalue\": 80 }\n      ],\n      \"tooltip\": true\n    }\n  ]\n}";
-            }
-            else if (entryText.Contains("pie"))
-            {
-                response = "{\n  \"chartType\": \"circular\",\n  \"title\": \"Monthly Sales Data\",\n  \"ShowLegend\": \"true\",\n  \"series\": [\n    {\n      \"type\": \"pie\",\n      \"xpath\": \"category\",\n      \"dataSource\": [\n        { \"xvalue\": \"January\", \"yvalue\": 5000 },\n        { \"xvalue\": \"February\", \"yvalue\": 6000 },\n        { \"xvalue\": \"March\", \"yvalue\": 7000 },\n        { \"xvalue\": \"April\", \"yvalue\": 8000 },\n        { \"xvalue\": \"May\", \"yvalue\": 9000 },\n        { \"xvalue\": \"June\", \"yvalue\": 10000 },\n        { \"xvalue\": \"July\", \"yvalue\": 11000 },\n        { \"xvalue\": \"August\", \"yvalue\": 12000 },\n        { \"xvalue\": \"September\", \"yvalue\": 13000 },\n        { \"xvalue\": \"October\", \"yvalue\": 14000 },\n        { \"xvalue\": \"November\", \"yvalue\": 15000 },\n        { \"xvalue\": \"December\", \"yvalue\": 16000 }\n      ],\n      \"tooltip\": true\n    }\n  ]\n}";
-            }
-            else if (entryText.Contains("doughnut"))
-            {
-                response = "{\n  \"chartType\": \"circular\",\n  \"title\": \"Task Completion Doughnut Chart\",\n  \"ShowLegend\": \"true\",\n  \"series\": [\n    {\n      \"type\": \"doughnut\",\n      \"xpath\": \"xvalue\",\n      \"dataSource\": [\n        { \"xvalue\": \"Completed\", \"yvalue\": 70 },\n        { \"xvalue\": \"In Progress\", \"yvalue\": 20 },\n        { \"xvalue\": \"Pending\", \"yvalue\": 10 }\n      ],\n      \"tooltip\": true\n    }\n  ],\n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Task Status\"\n  },\n  \"yAxis\": {\n    \"title\": \"Percentage\",\n    \"type\": \"numerical\",\n    \"min\": 0,\n    \"max\": 100\n  }\n}";
-            }
-            else if (entryText.Contains("spline"))
-            {
-                response = "{\n  \"chartType\": \"cartesian\",\n  \"title\": \"Daily Average Temperature for the Past Week\",\n  \"ShowLegend\": \"true\",\n  \"series\": [\n    {\n      \"type\": \"spline\",\n      \"xpath\": \"date\",\n      \"dataSource\": [\n        { \"xvalue\": \"2023-10-01\", \"yvalue\": 15 },\n        { \"xvalue\": \"2023-10-02\", \"yvalue\": 17 },\n        { \"xvalue\": \"2023-10-03\", \"yvalue\": 16 },\n        { \"xvalue\": \"2023-10-04\", \"yvalue\": 18 },\n        { \"xvalue\": \"2023-10-05\", \"yvalue\": 20 },\n        { \"xvalue\": \"2023-10-06\", \"yvalue\": 19 },\n        { \"xvalue\": \"2023-10-07\", \"yvalue\": 21 }\n      ],\n      \"tooltip\": true\n    }\n  ],\n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Date\"\n  },\n  \"yAxis\": {\n    \"title\": \"Temperature (°C)\",\n    \"type\": \"numerical\",\n    \"min\": 0,\n    \"max\": 30\n  }\n}";
-            }
-            else if (entryText.Contains("line"))
-            {
-                response = "\n{\n  \"chartType\": \"cartesian\",\n  \"title\": \"Product Sales Over Six Months\",\n  \"ShowLegend\": \"true\",\n  \"series\": [\n    {\n      \"type\": \"line\",\n      \"xpath\": \"month\",\n      \"dataSource\": [\n        { \"xvalue\": \"January\", \"yvalue\": 150 },\n        { \"xvalue\": \"February\", \"yvalue\": 200 },\n        { \"xvalue\": \"March\", \"yvalue\": 175 },\n        { \"xvalue\": \"April\", \"yvalue\": 220 },\n        { \"xvalue\": \"May\", \"yvalue\": 240 },\n        { \"xvalue\": \"June\", \"yvalue\": 210 }\n      ],\n      \"tooltip\": true\n    }\n  ],\n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Month\"\n  },\n  \"yAxis\": {\n    \"title\": \"Sales (Units)\",\n    \"type\": \"numerical\",\n    \"min\": 0,\n    \"max\": 300\n  }\n}\n";
-            }
-            else
-            {
-                response = "{\n  \"chartType\": \"cartesian\",\n  \"title\": \"Revenue by Region\",\n  \"ShowLegend\": \"true\",\n  \"xAxis\": {\n    \"type\": \"category\",\n    \"title\": \"Region\"\n  },\n  \"yAxis\": {\n    \"title\": \"Revenue\",\n    \"type\": \"numerical\",\n    \"min\": 0\n  },\n  \"series\": [\n    {\n      \"type\": \"column\",\n      \"xpath\": \"region\",\n      \"dataSource\": [\n        { \"xvalue\": \"North America\", \"yvalue\": 120000 },\n        { \"xvalue\": \"Europe\", \"yvalue\": 90000 },\n        { \"xvalue\": \"Asia\", \"yvalue\": 70000 },\n        { \"xvalue\": \"South America\", \"yvalue\": 45000 },\n        { \"xvalue\": \"Australia\", \"yvalue\": 30000 }\n      ],\n      \"tooltip\": true\n    }\n  ]\n}";
-            }
-
-            DecryptJSON(response, false);
-        }
 
         private void OnAiButtonClicked()
         {
@@ -649,86 +652,13 @@ namespace ChartGenerator
 
         private async Task GetDataFromAI(string text)
         {
-            string response = await GetAIResponse(text);
+            var request_query = GetChartUserPrompt(text);
+            string response = await openAIService.GetAnswerFromGPT(request_query);
 
             if (response != null)
             {
                 oldJson = response;
                 DecryptJSON(response, false);
-            }
-        }
-
-        public async Task<string> GetAIResponse(string query)
-        {
-            string prompt = "Create a JSON configuration for a cartesian chart using the ChartConfig and SeriesConfig classes, "
-                + $"based on the following query: {query}. The JSON should include: "
-                + "1. The chart type (cartesian or circular). "
-                + "2. Title of the chart. "
-                + "3. X-axis and Y-axis specifications (for cartesian charts). "
-                + "4. Series configurations, including type and data source. "
-                + "5. A setting for whether tooltips are enabled. "
-                + "Use exemplary data relevant to the query to fill in the values. "
-                + "Example JSON Structure: "
-                + "{ "
-                + "  chartType: cartesian, // or circular"
-                + "  title: {Chart Title}, // Replace with an appropriate title"
-                + "  ShowLegend: true "
-                + "  series: [ "
-                + "    { "
-                + "      type: line, // Specify type: line, area, column, pie, doughnut or radialbar etc."
-                + "      xpath: xvalue, "
-                + "      dataSource: [ "
-                + "        { xvalue: {X1}, yvalue: {Y1} },    // Sample data points"
-                + "        { xvalue: {X2}, yvalue: {Y2} },   //  Keys should always be xvalue and yvalue. All other keys are not allowed."
-                + "        { xvalue: {X3}, yvalue: {Y3} }   //   Real-world data is preferred over sample data"
-                + "      ], "
-                + "      tooltip: true "
-                + "    } "
-                + "  ], "
-                + "  xAxis: { "
-                + "    type: category, // For cartesian charts"
-                + "    title: {X Axis Title} // Optional: Replace with an appropriate title"
-                + "  }, "
-                + "  yAxis: { "
-                + "    title: {Y Axis Title}, // Optional: Replace with an appropriate title"
-                + "    type: numerical, // For cartesian charts"
-                + "    min: {Min Value}, // Optional: set minimum value if relevant"
-                + "    max: {Max Value} // Optional: set maximum value if relevant"
-                + "  }, "
-                + "} "
-                + "Instructions: "
-                + "- Replace placeholders such as `{query}`, `{Chart Title}`, `{X1}`, `{Y1}`, `{X Axis Title}`, and `{Y Axis Title}` with actual data relevant to the query. "
-                + "- Choose the appropriate chart and series types based on the data. "
-                + "- Ensure the data format matches the requirements for cartesian charts. "
-                + "- Only plain text should be used; no need to specify 'json' above the data. "
-                + "- No additional content other than json data should be included!";
-
-            // Call the method to get the AI response
-            var response = await openAIService.GetAnswerFromGPT(prompt);
-
-            // Convert the response to a string (assuming the response has a ToString method)
-            return response.ToString();
-        }
-
-        internal void DecryptJSON(string jsonData, bool fromChat)
-        {
-            try
-            {
-                var chartData = JsonConvert.DeserializeObject<ChartConfig>(jsonData);
-
-                ChartData = chartData!;
-
-                if (fromChat)
-                {
-                    AssistItem message = new() { Text = "Chart generated successfully...", ShowAssistItemFooter = false };
-                    Messages.Add(message);
-                }
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine(ex.Message);
-                AssistItem assistItem = new() { Text = "An error occurred while processing your request. Please try again later.", ShowAssistItemFooter = false };
-                Messages.Add(assistItem);
             }
         }
 

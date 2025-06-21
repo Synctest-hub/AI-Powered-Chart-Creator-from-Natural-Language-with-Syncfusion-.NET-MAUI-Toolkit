@@ -1,32 +1,13 @@
-﻿using Azure.AI.OpenAI;
-using Azure;
+﻿using Azure;
+using Azure.AI.OpenAI;
+using ChartGenerator.AIService;
 using Microsoft.Extensions.AI;
 
 namespace ChartGenerator
 {
-    internal class ChartAIService
+    internal class ChartAIService : AICredentials
     {
         #region Fields
-
-        /// <summary>
-        /// The EndPoint
-        /// </summary>
-        internal const string endpoint = "https://YOUR_ACCOUNT.openai.azure.com/";
-
-        /// <summary>
-        /// The Deployment name
-        /// </summary>
-        internal const string deploymentName = "deployment name";
-
-        /// <summary>
-        /// The Image Deployment name
-        /// </summary>
-        internal const string imageDeploymentName = "IMAGE_MODEL_NAME";
-
-        /// <summary>
-        /// The API key
-        /// </summary>
-        internal const string key = "API key";
 
         /// <summary>
         /// The already credential validated field

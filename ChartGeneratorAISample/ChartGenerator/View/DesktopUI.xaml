@@ -16,7 +16,7 @@
     </ContentPage.Resources>
     
     <ContentPage.BindingContext>
-        <local:ChartViewModel/>
+        <local:ChatViewModel/>
     </ContentPage.BindingContext>
     
     <ScrollView>
@@ -33,74 +33,86 @@
 
             <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
 
-                    <Grid RowDefinitions="Auto,*,Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
-                    <StackLayout BindableLayout.ItemsSource="{Binding ImageSourceCollection}"
-              Grid.Row="1"
-             Margin="5,5,5,0"
-             IsVisible="{Binding HasImageUploaded}" 
-             Orientation="Horizontal">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Grid HeightRequest="60"
-                  WidthRequest="60" x:Name="border"
-                  ColumnDefinitions="Auto"
-                  HorizontalOptions="Start">
-                                    <Border Stroke="Transparent"
-                        StrokeThickness="0"
-                        WidthRequest="50"
-                        HeightRequest="50"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto,Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
+                        <!-- Input Area with Editor and Image Container -->
+                        <Border Grid.Row="0"
+                                BackgroundColor="#F8F8F8"
+                                StrokeThickness="1"
+                                Stroke="LightGray"
+                                Margin="0,0,0,5"
+                                Padding="10">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            
+                            <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                                <!-- Image Display (Visible when there are images) -->
+                                <FlexLayout BindableLayout.ItemsSource="{Binding ImageSourceCollection}"
+                                          Grid.Row="0"
+                                          IsVisible="{Binding HasImageUploaded}"
+                                          Wrap="Wrap"
+                                          JustifyContent="Start"
+                                          AlignItems="Start"
+                                          AlignContent="Start"
+                                          Margin="0,0,0,5">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,10,10"
+                                                  HeightRequest="60"
+                                                  WidthRequest="60">
+                                                <Border Stroke="Transparent"
+                                                        StrokeThickness="0"
+                                                        WidthRequest="50"
+                                                        HeightRequest="50"
+                                                        HorizontalOptions="Center"
+                                                        VerticalOptions="Center"
+                                                        BackgroundColor="#F0F0F0">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="8"/>
+                                                    </Border.StrokeShape>
+                                                    <Image Source="{Binding .}"
+                                                           WidthRequest="50" 
+                                                           HeightRequest="50"
+                                                           Aspect="Fill"/>
+                                                </Border>
+                                                <Button Text="✕"
+                                                        FontSize="12"
+                                                        WidthRequest="20"
+                                                        HeightRequest="20"
+                                                        Padding="0"
+                                                        CornerRadius="10"
+                                                        BackgroundColor="#99000000"
+                                                        TextColor="White"
+                                                        HorizontalOptions="End"
+                                                        VerticalOptions="Start"
+                                                        Command="{Binding Source={x:Reference editor}, Path=BindingContext.CancelImageSelected}"
+                                                        CommandParameter="{Binding .}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
 
-                                        <Image Source="{Binding .}"
-                           WidthRequest="50" 
-                           HeightRequest="50"
-                           Aspect="Fill"/>
-                                    </Border>
-                                    <core:SfBadgeView HorizontalOptions="End"
-                                      WidthRequest="60" 
-                                      VerticalOptions="Start">
-                                        <core:SfBadgeView.Content>
-                                            <StackLayout HorizontalOptions="End" 
-                                     HeightRequest="16" 
-                                     WidthRequest="16">
-                                                <StackLayout.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={x:Reference editor}, Path=BindingContext.CancelImageSelected}"
-                      CommandParameter="{Binding .}"/>
-                                                </StackLayout.GestureRecognizers>
-                                            </StackLayout>
-                                        </core:SfBadgeView.Content>
-                                        <core:SfBadgeView.BadgeSettings>
-                                            <core:BadgeSettings Position="TopRight" 
-                                            FontSize="10" 
-                                            Icon="Delete"/>
-                                        </core:SfBadgeView.BadgeSettings>
-                                    </core:SfBadgeView>
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </StackLayout>
-                    <Editor Grid.Row="2" IsEnabled="{Binding IsDisable}"  x:Name="editor"
-                                BackgroundColor="Transparent"
-                                HeightRequest="100"
-                                PlaceholderColor="Gray"
-                                Text="{Binding EntryText}"
-                                Placeholder="Describe what you want to create.."
-                                HorizontalOptions="FillAndExpand"
-                                FontSize="14"  
-                                TextColor="Black">
-                       
-                    </Editor>
-                   
-
-                    <core:SfChipGroup ItemHeight="40" Margin="5,50,5,5" 
+                                <!-- Text Editor -->
+                                <local:CustomEditor Grid.Row="1"
+                                        IsEnabled="{Binding IsDisable}"
+                                        x:Name="editor"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="100"
+                                        PlaceholderColor="Gray"
+                                        Text="{Binding EntryText}"
+                                        Placeholder="Describe what you want to create.."
+                                        HorizontalOptions="FillAndExpand"
+                                        FontSize="14"  
+                                        TextColor="Black"/>
+                            </Grid>
+                        </Border>
+                        <!-- Editor Options Toolbar -->
+                        <core:SfChipGroup ItemHeight="40" 
+                                    Margin="5,10,5,5" 
                                     ChipCornerRadius="20" 
                                     ChipBackground="Transparent" 
                                     ChipStrokeThickness="0"  
-                                    Grid.Row="3"
+                                    Grid.Row="1"
                                     ChipPadding="0"
                                     ChipClicked="OnChipClicked"
                                     ItemsSource="{Binding Path=EditorOptions}">         

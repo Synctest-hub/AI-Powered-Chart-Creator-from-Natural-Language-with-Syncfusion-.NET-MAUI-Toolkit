@@ -3,14 +3,16 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                         xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
                         xmlns:local="clr-namespace:ChartGenerator"
-                        x:Class="ChartGenerator.CartesianChartExt"
-                        Title="{Binding Title}"
-                        Source="{Binding Series}">
+                        x:Class="ChartGenerator.CartesianCategory" x:DataType="local:ChartConfig"
+                        Source="{Binding Series}" XAxis="{Binding XAxis}" YAxis="{Binding YAxis}" EnableSideBySideSeriesPlacement="{Binding SideBySidePlacement}">
 
+    <chart:SfCartesianChart.Title>
+        <Label Text="{Binding Title}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+    </chart:SfCartesianChart.Title>
     <chart:SfCartesianChart.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <local:SeriesTemplates />
+                <local:ChartResources />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </chart:SfCartesianChart.Resources>
@@ -19,20 +21,5 @@
         <chart:ChartLegend IsVisible="{Binding ShowLegend}" Placement="Bottom" ToggleSeriesVisibility="True"/>
     </chart:SfCartesianChart.Legend>
 
-    <chart:SfCartesianChart.XAxes>
-        <chart:CategoryAxis>
-            <chart:CategoryAxis.Title>
-                <chart:ChartAxisTitle Text="{Binding XAxis.Title}"/>
-            </chart:CategoryAxis.Title>
-        </chart:CategoryAxis>
-    </chart:SfCartesianChart.XAxes>
-
-    <chart:SfCartesianChart.YAxes>
-        <chart:NumericalAxis Minimum="{Binding YAxis.Min}" Maximum="{Binding YAxis.Max}">
-            <chart:NumericalAxis.Title>
-                <chart:ChartAxisTitle Text="{Binding YAxis.Title}" />
-            </chart:NumericalAxis.Title>
-        </chart:NumericalAxis>
-    </chart:SfCartesianChart.YAxes>
 
 </chart:SfCartesianChart>

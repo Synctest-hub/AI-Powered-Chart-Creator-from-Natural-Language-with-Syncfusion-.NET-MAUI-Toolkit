@@ -1,4 +1,4 @@
-using Syncfusion.Maui.Core; 
+using Syncfusion.Maui.Core;
 
 namespace ChartGenerator;
 
@@ -10,7 +10,7 @@ public partial class DesktopUI : ContentPage
     }
     private void OnChipClicked(object sender, EventArgs e)
     {
-        var viewmodel = this.BindingContext as ChartViewModel;
+        var viewmodel = this.BindingContext as ChatViewModel;
         var chip = (sender as SfChip);
         var layout = chip.Children[0] as HorizontalStackLayout;
 
@@ -28,6 +28,6 @@ public partial class DesktopUI : ContentPage
         if (string.IsNullOrEmpty(option.Name) || !option.IsEnabled)
             return;
 
-        viewmodel.EditorOptionsComamnd.Execute(option);  
+        viewmodel.EditorOptionsComamnd.Execute(option);
     }
 }

@@ -12,11 +12,11 @@
         <ResourceDictionary>
 
             <DataTemplate x:Key="cartesianChartTemplate">
-                <local:CartesianChartExt />
+                <local:CartesianCategory/>
             </DataTemplate>
 
             <DataTemplate x:Key="circularChartTemplate">
-                <local:CircularChartExt />
+                <local:CircularCategory/>
             </DataTemplate>
 
             <local:ChartTemplateSelector x:Key="chartTemplateSelector" 

@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Syncfusion.Maui.Core.Internals;
-using Syncfusion.Maui.Toolkit.Charts;
+﻿using Syncfusion.Maui.Core.Internals;
 
 #if ANDROID
 using PlatformView = Android.Widget.EditText;
 #elif WINDOWS
 using PlatformView = Microsoft.UI.Xaml.Controls.TextBox;
 #endif
-using PointerEventArgs = Syncfusion.Maui.Core.Internals.PointerEventArgs;
 namespace ChartGenerator
 {
     public class CustomEditor : Editor, IKeyboardListener
@@ -70,7 +63,7 @@ namespace ChartGenerator
         {
             if (args.Key == KeyboardKey.Enter && !args.IsShiftKeyPressed)
             {
-                var bindingContext = this.BindingContext as ChartViewModel;
+                var bindingContext = this.BindingContext as ChatViewModel;
                 args.Handled = true;
                 if (!string.IsNullOrWhiteSpace(bindingContext.InputText))
                 {

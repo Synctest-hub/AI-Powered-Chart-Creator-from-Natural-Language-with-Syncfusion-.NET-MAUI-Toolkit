@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:local="clr-namespace:ChartGenerator"
+             x:Class="ChartGenerator.ChartResources">
+
+    <x:Array x:Key="Pallet1" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#1089E9" />
+        <SolidColorBrush Color="#08CDAA" />
+        <SolidColorBrush Color="#F58400" />
+        <SolidColorBrush Color="#9656FF" />
+        <SolidColorBrush Color="#F9C200" />
+        <SolidColorBrush Color="#F954A3" />
+        <SolidColorBrush Color="#05BB3D" />
+        <SolidColorBrush Color="#06B1E2" />
+        <SolidColorBrush Color="#FF4E4E" />
+    </x:Array>
+
+
+    <x:Array x:Key="Pallet2" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#4A9D63" />
+        <SolidColorBrush Color="#FFCB3E" />
+        <SolidColorBrush Color="#69CAF5" />
+        <SolidColorBrush Color="#F2872B" />
+        <SolidColorBrush Color="#2D61E3" />
+        <SolidColorBrush Color="#8EC911" />
+        <SolidColorBrush Color="#A63BE8" />
+        <SolidColorBrush Color="#602EF0" />
+    </x:Array>
+
+
+    <x:Array x:Key="Pallet3" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#01A8B5" />
+        <SolidColorBrush Color="#5F3BC3" />
+        <SolidColorBrush Color="#DE4383" />
+        <SolidColorBrush Color="#F2AE3D" />
+        <SolidColorBrush Color="#EB664B" />
+        <SolidColorBrush Color="#D82591" />
+        <SolidColorBrush Color="#A32FFF" />
+        <SolidColorBrush Color="#4176FF" />
+        <SolidColorBrush Color="#047D43" />
+    </x:Array>
+
+
+    <x:Array x:Key="Pallet4" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#314A6E" />
+        <SolidColorBrush Color="#48988B" />
+        <SolidColorBrush Color="#5E498C" />
+        <SolidColorBrush Color="#74BD6F" />
+        <SolidColorBrush Color="#597FCA" />
+    </x:Array>
+
+
+    <x:Array x:Key="Pallet5" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#95DB9C" />
+        <SolidColorBrush Color="#B95375" />
+        <SolidColorBrush Color="#56BBAF" />
+        <SolidColorBrush Color="#606D7F" />
+        <SolidColorBrush Color="#E99941" />
+        <SolidColorBrush Color="#327DBE" />
+        <SolidColorBrush Color="#E7695A" />
+        <SolidColorBrush Color="#2D4552" />
+    </x:Array>
+
+
+    <x:Array x:Key="Pallet6" Type="{x:Type Brush}">
+        <SolidColorBrush Color="#2EC4B6" />
+        <SolidColorBrush Color="#E75A6E" />
+        <SolidColorBrush Color="#FDCD25" />
+        <SolidColorBrush Color="#0DC920" />
+    </x:Array>
+
+    <DataTemplate x:Key="lineSeriesTemplate">
+        <chart:LineSeries ItemsSource="{Binding DataSource}"
+                      XBindingPath="xvalue"
+                      YBindingPath="yvalue"
+                      EnableTooltip="{Binding Tooltip}"
+                      Label="{Binding Name}"
+                      StrokeWidth="2.5"
+                      ShowMarkers="True"
+                      EnableAnimation="True">
+            <chart:LineSeries.MarkerSettings>
+                <chart:ChartMarkerSettings Fill="SkyBlue" 
+                                       Stroke="RoyalBlue" 
+                                       StrokeWidth="2" />
+            </chart:LineSeries.MarkerSettings>
+        </chart:LineSeries>
+    </DataTemplate>
+
+    <DataTemplate x:Key="splineSeriesTemplate">
+        <chart:SplineSeries ItemsSource="{Binding DataSource}"
+                      XBindingPath="xvalue"
+                      YBindingPath="yvalue"
+                      EnableTooltip="{Binding Tooltip}"
+                      Label="{Binding Name}"
+                      StrokeWidth="2.5"
+                      ShowMarkers="True"
+                      EnableAnimation="True">
+            <chart:SplineSeries.MarkerSettings>
+                <chart:ChartMarkerSettings Fill="#9370DB" 
+                                       Stroke="#663399" 
+                                       StrokeWidth="2" />
+            </chart:SplineSeries.MarkerSettings>
+        </chart:SplineSeries>
+    </DataTemplate>
+
+    <DataTemplate x:Key="columnSeriesTemplate">
+        <chart:ColumnSeries ItemsSource="{Binding DataSource}"
+                        XBindingPath="xvalue"
+                        YBindingPath="yvalue"
+                        CornerRadius="15"
+                        Label="{Binding Name}"
+                        EnableTooltip="{Binding Tooltip}"
+                        EnableAnimation="True">
+        </chart:ColumnSeries>
+    </DataTemplate>
+
+    <DataTemplate x:Key="areaSeriesTemplate">
+        <chart:AreaSeries ItemsSource="{Binding DataSource}"
+                      XBindingPath="xvalue"
+                      YBindingPath="yvalue"
+                      Opacity=".8"
+                      Label="{Binding Name}"
+                      EnableTooltip="{Binding Tooltip}"
+                      EnableAnimation="True">
+        </chart:AreaSeries>
+    </DataTemplate>
+
+    <DataTemplate x:Key="pieSeriesTemplate">
+        <chart:PieSeries ItemsSource="{Binding DataSource}"
+                     XBindingPath="xvalue"
+                     YBindingPath="yvalue"
+                     EnableTooltip="{Binding Tooltip}"
+                     PaletteBrushes="{StaticResource PaletteBrushesCollection}"
+                     EnableAnimation="True">
+        </chart:PieSeries>
+    </DataTemplate>
+
+    <DataTemplate x:Key="doughnutSeriesTemplate">
+        <chart:DoughnutSeries ItemsSource="{Binding DataSource}"
+                          XBindingPath="xvalue"
+                          YBindingPath="yvalue"
+                          ExplodeAll="True"
+                          EnableTooltip="{Binding Tooltip}"
+                          PaletteBrushes="{StaticResource PaletteBrushesCollection}"
+                          EnableAnimation="True"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="radialBarSeriesTemplate">
+        <chart:RadialBarSeries ItemsSource="{Binding DataSource}"
+                           XBindingPath="xvalue"
+                           YBindingPath="yvalue"
+                           CapStyle="BothCurve"
+                           EnableTooltip="{Binding Tooltip}" 
+                           PaletteBrushes="{StaticResource RadialbarCollection}"
+                           EnableAnimation="True" />
+    </DataTemplate>
+
+    <local:SeriesTemplateSelector x:Key="seriesTemplateSelector"
+                              LineSeriesTemplate="{StaticResource lineSeriesTemplate}"
+                              SplineSeriesTemplate="{StaticResource splineSeriesTemplate}"
+                              ColumnSeriesTemplate="{StaticResource columnSeriesTemplate}"
+                              AreaSeriesTemplate="{StaticResource areaSeriesTemplate}"
+                              PieSeriesTemplate="{StaticResource pieSeriesTemplate}"
+                              DoughnutSeriesTemplate="{StaticResource doughnutSeriesTemplate}"
+                              RadialBarSeriesTemplate="{StaticResource radialBarSeriesTemplate}" />
+
+
+</ResourceDictionary>
