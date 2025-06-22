@@ -36,43 +36,152 @@ public partial class ChartView : ContentPage
 
     private async void Exportchartbutton_Clicked(object sender, EventArgs e)
     {
-        PdfDocument document = new PdfDocument();
-        PdfPage page = document.Pages.Add();
-        PdfGraphics graphics = page.Graphics;
+        ActivityIndicator? indicator = null;
+        PdfDocument? document = null;
+        MemoryStream? stream = null;
+        Stream? imageStream = null;
 
-        float width = (float)templatedItemView.Width + 75;
-        float height = (float)templatedItemView.Height + 125;
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("Starting PDF export process...");
+            
+            // Display activity indicator
+            indicator = new ActivityIndicator
+            {
+                IsRunning = true, 
+                Color = Color.FromArgb("#6750a4"),
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            };
+            
+            Grid parentGrid = (Grid)this.Content;
+            parentGrid.Children.Add(indicator);
+            
+            System.Diagnostics.Debug.WriteLine("Creating PDF document...");
+            // Create PDF document
+            document = new PdfDocument();
+            PdfPage page = document.Pages.Add();
+            PdfGraphics graphics = page.Graphics;
 
-        //To reduce the width and height of the Windows and MAC platform
+            // Calculate dimensions
+            float width = (float)templatedItemView.Width + 75;
+            float height = (float)templatedItemView.Height + 125;
+
+            //To reduce the width and height of the Windows and MAC platform
 #if !IOS && !ANDROID
-        width = (float)templatedItemView.Width / 2.5f;
-        height = (float)templatedItemView.Height / 1.5f;
+            width = (float)templatedItemView.Width / 2.5f;
+            height = (float)templatedItemView.Height / 1.5f;
 #endif
+            System.Diagnostics.Debug.WriteLine($"PDF dimensions: {width}x{height}");
 
-        PdfImage img = new PdfBitmap((await templatedItemView.GetStreamAsync(ImageFileFormat.Png)));
-        graphics.DrawImage(img, 0, 0, width, height);
-        MemoryStream stream = new MemoryStream();
-        document.Save(stream);
-        document.Close(true);
-        stream.Position = 0;
-        SavePDF("ChartAsPDF.pdf", stream);
-        stream.Flush();
-        stream.Dispose();
+            // Get the image stream
+            System.Diagnostics.Debug.WriteLine("Getting chart image stream...");
+            imageStream = await templatedItemView.GetStreamAsync(ImageFileFormat.Png);
+            if (imageStream == null)
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to get chart image stream - it's null");
+                await Application.Current.MainPage.DisplayAlert("Error", "Failed to get chart image", "OK");
+                parentGrid.Children.Remove(indicator);
+                return;
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"Chart image stream obtained. Length: {imageStream.Length} bytes");
+            
+            // Create PDF image
+            System.Diagnostics.Debug.WriteLine("Creating PDF image from bitmap...");
+            PdfImage img = new PdfBitmap(imageStream);
+            graphics.DrawImage(img, 0, 0, width, height);
+            
+            // Save to memory stream
+            System.Diagnostics.Debug.WriteLine("Saving PDF to memory stream...");
+            stream = new MemoryStream();
+            document.Save(stream);
+            document.Close(true);
+            stream.Position = 0;
+            
+            System.Diagnostics.Debug.WriteLine($"PDF created in memory. Size: {stream.Length} bytes");
+            
+            // Save to file
+            System.Diagnostics.Debug.WriteLine("Saving PDF to file...");
+            SavePDF("ChartAsPDF.pdf", stream);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"PDF Export Exception: {ex}");
+            await Application.Current.MainPage.DisplayAlert("Error", $"Exception during PDF export: {ex.Message}", "OK");
+        }
+        finally
+        {
+            // Clean up resources
+            if (stream != null)
+            {
+                stream.Dispose();
+                System.Diagnostics.Debug.WriteLine("Memory stream disposed");
+            }
+            
+            if (imageStream != null)
+            {
+                imageStream.Dispose();
+                System.Diagnostics.Debug.WriteLine("Image stream disposed");
+            }
+            
+            if (document != null)
+            {
+                document = null;
+                System.Diagnostics.Debug.WriteLine("PDF document nullified");
+            }
+            
+            // Remove activity indicator
+            if (indicator != null && this.Content is Grid parentGrid)
+            {
+                parentGrid.Children.Remove(indicator);
+                System.Diagnostics.Debug.WriteLine("Activity indicator removed");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("PDF export process completed");
+        }
     }
+
     private async void SavePDF(string fileName, Stream stream)
     {
-        fileName = Path.GetFileNameWithoutExtension(fileName) + ".pdf";
+        try 
+        {
+            fileName = Path.GetFileNameWithoutExtension(fileName) + ".pdf";
+            string filePath;
 
-#if ANDROID
-        string path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).ToString();
+#if ANDROID || IOS
+            // For mobile platforms, use the app's cache directory
+            string folderPath = Path.Combine(FileSystem.CacheDirectory, "PDFExports");
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            filePath = Path.Combine(folderPath, fileName);
 #else
-        string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            // For desktop platforms, save to bin/exports
+            string binPath = AppDomain.CurrentDomain.BaseDirectory;
+            string exportsFolder = Path.Combine(binPath, "exports");
+            if (!Directory.Exists(exportsFolder))
+            {
+                Directory.CreateDirectory(exportsFolder);
+            }
+            filePath = Path.Combine(exportsFolder, fileName);
 #endif
-        string filePath = Path.Combine(path, fileName);
-        using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.ReadWrite);
-        await stream.CopyToAsync(fileStream);
-        fileStream.Flush();
-        fileStream.Dispose();
+            
+            using (FileStream fileStream = new(filePath, FileMode.Create, FileAccess.ReadWrite))
+            {
+                await stream.CopyToAsync(fileStream);
+                fileStream.Flush();
+            }
+            
+            await Application.Current.MainPage.DisplayAlert("Success", $"PDF saved to {filePath}", "OK");
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save PDF: {ex.Message}", "OK");
+            // Log more detailed error information
+            System.Diagnostics.Debug.WriteLine($"PDF Export Error: {ex.ToString()}");
+        }
     }
 }
 

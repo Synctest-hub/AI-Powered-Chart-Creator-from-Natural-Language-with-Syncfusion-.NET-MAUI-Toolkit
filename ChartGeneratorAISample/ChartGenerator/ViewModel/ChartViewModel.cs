@@ -653,7 +653,7 @@ namespace ChartGenerator
         private async Task GetDataFromAI(string text)
         {
             var request_query = GetChartUserPrompt(text);
-            string response = await openAIService.GetAnswerFromGPT(request_query);
+            string response = await openAIService.GetAnswerFromGPT(request_query, true);
 
             if (response != null)
             {

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
@@ -106,23 +106,70 @@ JSON Requirements:
 3. ""showLegend"": Boolean value, default to true
 4. ""sideBySidePlacement"": Boolean value, default to false for single series
 5. ""xAxis"" and ""yAxis"": Must be arrays of objects, even for single axis
-6. ""xAxis"" can be datetime, category, log or numerical, ""yAxis"" can be only numerical or log, based on the user requested query.
-6. ""series"": Must be an array containing series objects, and can have ""name"" based on its use case, if not have name you can do showlegend false.
-7. ""type"": Must be one of: ""line"", ""column"", ""area"", ""pie"", ""doughnut"", ""radialbar"" (lowercase)
-8. ""dataSource"": Array of objects with x and y values for the series, y value always should double and mention it in ""yvalue"" and x value can be any type mention it ""xvalue"" properties
-9. ""tooltip"": Boolean value, default to true
+6. ""xAxis"" can be ""datetime"", ""category"", ""logarithmic"" or ""numerical"", ""yAxis"" can only be ""numerical"" or ""logarithmic"", based on the user requested query. Proper capitalization will be handled.
+7. ""series"": Must be an array containing series objects, and can have ""name"" based on its use case, if not have name you can do showlegend false.
+8. ""type"": Must be one of: ""line"", ""column"", ""area"", ""pie"", ""doughnut"", ""radialbar"" (lowercase)
+9. ""dataSource"": Array of objects with x and y values for the series, y value always should double and mention it in ""yvalue"" and x value can be any type mention it ""xvalue"" properties
+10. ""tooltip"": Boolean value, default to true
 
 IMPORTANT:
 - Respond ONLY with valid, properly formatted JSON
 - Use lowercase for all enum values (chartType, series type, axis type)
 - Include all required properties
 - Always format the ""xAxis"" and ""yAxis"" as arrays
+- Always choose correct axis types based on the data points
 - Do not include any explanations or comments in your response
 - Do not use markdown code blocks - just output raw JSON
 - Ensure all property names are consistent with the format provided
 
 User Request: " + userPrompt;
             return userQuery;
+        }
+
+        /// <summary>
+        /// Normalizes axis types to ensure they have the proper format
+        /// </summary>
+        /// <param name="chartData">The chart data to normalize</param>
+        private void NormalizeAxisTypes(ChartConfig chartData)
+        {
+            // Normalize X-Axis types
+            foreach (var axis in chartData.XAxis)
+            {
+                axis.Type = NormalizeAxisType(axis.Type);
+            }
+
+            // Normalize Y-Axis types
+            foreach (var axis in chartData.YAxis)
+            {
+                axis.Type = NormalizeAxisType(axis.Type);
+            }
+        }
+
+        /// <summary>
+        /// Normalizes an individual axis type string
+        /// </summary>
+        /// <param name="axisType">The axis type to normalize</param>
+        /// <returns>The normalized axis type string</returns>
+        private string NormalizeAxisType(string axisType)
+        {
+            if (string.IsNullOrEmpty(axisType))
+                return "Numerical"; // Default
+
+            switch (axisType.ToLower())
+            {
+                case "numerical":
+                case "linear":
+                    return "Numerical";
+                case "datetime":
+                    return "DateTime";
+                case "category":
+                    return "Category";
+                case "log":
+                case "logarithmic":
+                    return "Logarithmic";
+                default:
+                    return "Numerical"; // Default
+            }
         }
 
         private string ExtractJsonContent(string responseString)
@@ -192,25 +239,8 @@ User Request: " + userPrompt;
                 string extractedJson = ExtractJsonContent(jsonData);
                 Console.WriteLine($"Extracted JSON: {extractedJson}");
 
-                // Create settings for JSON deserialization
-                var settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                    Error = (sender, args) =>
-                    {
-                        Console.WriteLine($"JSON Error: {args.ErrorContext.Error.Message}");
-                        args.ErrorContext.Handled = true;
-                    },
-                    Converters = new List<JsonConverter>
-                    {
-                        new ChartTypeEnumConverter(),
-                        new SeriesTypeConverter()
-                    }
-                };
-
                 // Deserialize the JSON to ChartConfig object
-                var chartData = JsonConvert.DeserializeObject<ChartConfig>(extractedJson, settings);
+                var chartData = JsonConvert.DeserializeObject<ChartConfig>(extractedJson);
 
                 // Validate and assign chart data
                 if (chartData != null)
@@ -224,6 +254,9 @@ User Request: " + userPrompt;
 
                     if (chartData.YAxis == null)
                         chartData.YAxis = new ObservableCollection<AxisConfig>();
+
+                    // Normalize axis types
+                    NormalizeAxisTypes(chartData);
 
                     ChartData = chartData;
 

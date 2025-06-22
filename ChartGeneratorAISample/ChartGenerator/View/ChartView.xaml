@@ -38,10 +38,10 @@
 
     </ContentPage.Resources>
 
-   
+
     <ContentPage.Content>
-    <Grid>
-        <Grid
+        <Grid>
+            <Grid
        ColumnDefinitions="{OnPlatform WinUI='7*,3*', MacCatalyst='7*,3*'}" 
             RowDefinitions="Auto,*">
 
@@ -127,76 +127,75 @@
              RequestCommand="{Binding RequestCommand}"
              ShowHeader="{Binding ShowHeader}"
              AssistItems="{Binding Messages}">
-                <aiassistview:SfAIAssistView.HeaderTemplate>
-                    <DataTemplate>
-                        <VerticalStackLayout 
+                    <aiassistview:SfAIAssistView.HeaderTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout 
                          Spacing="12">
-                            <Label Text="How can I assist with generated chart?" Padding="0,20,0,0"  LineBreakMode="WordWrap"
+                                <Label Text="How can I assist with generated chart?" Padding="0,20,0,0"  LineBreakMode="WordWrap"
                             FontSize="Subtitle"
                             HorizontalOptions="Center" />
-                            <HorizontalStackLayout x:Name="listView"
+                                <HorizontalStackLayout x:Name="listView"
                                               HeightRequest="{OnPlatform WinUI=140, Android=160, MacCatalyst=180, iOS=150}"
                                               WidthRequest="{OnPlatform MacCatalyst= 430,Android=335, iOS=310}"
                                               HorizontalOptions="Center" Padding="{OnPlatform MacCatalyst=20}"
                                               BindableLayout.ItemsSource="{Binding Path=ModelPrompts}">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="4">
-                                            <Border
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Padding="4">
+                                                <Border
                                              WidthRequest="{OnPlatform WinUI=120,Android=150,MacCatalyst= 150 , iOS=140}"
                                              HeightRequest="{OnPlatform WinUI=120,Android=130, MacCatalyst= 100, iOS=120}"
                                              Stroke="Gray"
                                              Padding="4">
-                                                <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
-                                                </Border.GestureRecognizers>
-                                                <VisualStateManager.VisualStateGroups>
-                                                    <VisualStateGroup x:Name="CommonStates">
-                                                        <VisualState x:Name="Normal">
-                                                            <VisualState.Setters>
-                                                                <Setter Property="Background" Value="Transparent" />
-                                                            </VisualState.Setters>
-                                                        </VisualState>
-                                                        <VisualState x:Name="PointerOver">
-                                                            <VisualState.Setters>
-                                                                <Setter Property="Background" Value="#14000000" />
-                                                            </VisualState.Setters>
-                                                        </VisualState>
-                                                    </VisualStateGroup>
-                                                </VisualStateManager.VisualStateGroups>
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="10" />
-                                                </Border.StrokeShape>
-                                                <Grid RowDefinitions="*">
-                                                    <Label Text="{Binding .}"
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                                    </Border.GestureRecognizers>
+                                                    <VisualStateManager.VisualStateGroups>
+                                                        <VisualStateGroup x:Name="CommonStates">
+                                                            <VisualState x:Name="Normal">
+                                                                <VisualState.Setters>
+                                                                    <Setter Property="Background" Value="Transparent" />
+                                                                </VisualState.Setters>
+                                                            </VisualState>
+                                                            <VisualState x:Name="PointerOver">
+                                                                <VisualState.Setters>
+                                                                    <Setter Property="Background" Value="#14000000" />
+                                                                </VisualState.Setters>
+                                                            </VisualState>
+                                                        </VisualStateGroup>
+                                                    </VisualStateManager.VisualStateGroups>
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="10" />
+                                                    </Border.StrokeShape>
+                                                    <Grid RowDefinitions="*">
+                                                        <Label Text="{Binding .}"
                                                         LineBreakMode="WordWrap"
                                                         VerticalTextAlignment="Center"
                                                         HorizontalTextAlignment="Center" />
-                                                </Grid>
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
-                    </DataTemplate>
-                </aiassistview:SfAIAssistView.HeaderTemplate>
-                <aiassistview:SfAIAssistView.Shadow>
-                    <Shadow Brush="Black" Offset="0,0" Radius="1" Opacity="0.5" />
-                </aiassistview:SfAIAssistView.Shadow>
-            </aiassistview:SfAIAssistView>
-            
-            <ActivityIndicator IsRunning="{Binding ShowIndicator}"
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </aiassistview:SfAIAssistView.HeaderTemplate>
+                    <aiassistview:SfAIAssistView.Shadow>
+                        <Shadow Brush="Black" Offset="0,0" Radius="1" Opacity="0.5" />
+                    </aiassistview:SfAIAssistView.Shadow>
+                </aiassistview:SfAIAssistView>
+
+                <ActivityIndicator IsRunning="{Binding ShowIndicator}"
                             x:Name="Indicator"
                             Color="{AppThemeBinding Light=#1E201E, Dark=#FEFAF6}"
                             Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
                             VerticalOptions="Center"
                             HorizontalOptions="Center"/>
-                <buttons:SfButton  Grid.Row="0"
-                                     Margin="0,0,60,0"
-                                     Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
-                                     x:Name="exportchartbutton"
-                                     Text="Export Chart" 
+                <buttons:SfButton  Grid.Row="0" Margin="0,0,60,0" 
+                                   Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
+                                   x:Name="exportchartbutton"
+                                   Text="Export Chart" 
                                      Clicked="Exportchartbutton_Clicked"
                                      FontFamily="MauiSampleFontIcon" 
                                      CornerRadius="5" 
@@ -204,7 +203,8 @@
                                      BackgroundColor="#6750a4"
                                      FontSize="{OnPlatform WinUI=17, Android=15, MacCatalyst=17, iOS=17}" WidthRequest="120" HeightRequest="30"
                                      ToolTipProperties.Text="Click to Export the Chart"  
-                                     FontAttributes="Bold"                                      VerticalOptions="Start"
+                                     FontAttributes="Bold" 
+                                     VerticalOptions="Start"
                                      HorizontalOptions="End"/>
                 <buttons:SfButton
                                 Grid.Row="0"
@@ -221,7 +221,7 @@
                                 VerticalOptions="Start"
                                 HorizontalOptions="End"/>
             </Grid>
-    </Grid>
+        </Grid>
     </ContentPage.Content>
 
     <ContentPage.Behaviors>

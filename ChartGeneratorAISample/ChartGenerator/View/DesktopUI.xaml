@@ -33,7 +33,7 @@
 
             <Grid ColumnDefinitions="500,auto" HorizontalOptions="Center" ColumnSpacing="5" Padding="5">
 
-                    <Grid RowDefinitions="Auto,Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
+                    <Grid RowDefinitions="Auto" HorizontalOptions="FillAndExpand" Grid.Column="0">
                         <!-- Input Area with Editor and Image Container -->
                         <Border Grid.Row="0"
                                 BackgroundColor="#F8F8F8"
@@ -106,13 +106,16 @@
                                         TextColor="Black"/>
                             </Grid>
                         </Border>
+                        
                         <!-- Editor Options Toolbar -->
                         <core:SfChipGroup ItemHeight="40" 
                                     Margin="5,10,5,5" 
                                     ChipCornerRadius="20" 
                                     ChipBackground="Transparent" 
                                     ChipStrokeThickness="0"  
-                                    Grid.Row="1"
+                                    Grid.Row="0"
+                                    VerticalOptions="End"
+                                    HorizontalOptions="Start"
                                     ChipPadding="0"
                                     ChipClicked="OnChipClicked"
                                     ItemsSource="{Binding Path=EditorOptions}">         
@@ -139,11 +142,11 @@
                             </DataTemplate>
                         </core:SfChipGroup.ItemTemplate>
                     </core:SfChipGroup>
-                    <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
+                    
+                        <core:SfBusyIndicator IsRunning="{Binding IsLoading}"
                                               IsVisible="{Binding IsLoading}"
                                               AnimationType="SingleCircle"/>
-                   
-                </Grid>
+                    </Grid>
 
                 <buttons:SfButton Text="&#xe76f;" 
                          FontFamily="MauiSampleFontIcon" 

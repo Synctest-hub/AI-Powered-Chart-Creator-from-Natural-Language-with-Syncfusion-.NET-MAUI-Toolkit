@@ -9,6 +9,50 @@ using System.Threading.Tasks;
 namespace ChartGenerator
 {
     /// <summary>
+    /// Converter for handling axis type values from string
+    /// </summary>
+    public class AxisTypeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(string);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.String)
+            {
+                string value = reader.Value.ToString().ToLower();
+                
+                switch (value)
+                {
+                    case "numerical":
+                    case "linear":
+                        return "Numerical";
+                    case "datetime":
+                        return "DateTime";
+                    case "category":
+                        return "Category";
+                    case "log":
+                    case "logarithmic":
+                        return "Logarithmic";
+                    default:
+                        return "Numerical"; // Default to numerical
+                }
+            }
+            
+            // Default if not a string
+            return "Numerical";
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            string axisType = (string)value;
+            writer.WriteValue(axisType);
+        }
+    }
+
+    /// <summary>
     /// Converter for handling ChartTypeEnum values from string
     /// </summary>
     public class ChartTypeEnumConverter : JsonConverter
