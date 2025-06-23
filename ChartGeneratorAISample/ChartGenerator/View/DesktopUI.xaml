@@ -75,8 +75,8 @@
                                                            HeightRequest="50"
                                                            Aspect="Fill"/>
                                                 </Border>
-                                                <Button Text="✕"
-                                                        FontSize="12"
+                                            <buttons:SfButton Text="✕"
+                                                        FontSize="11"
                                                         WidthRequest="20"
                                                         HeightRequest="20"
                                                         Padding="0"
@@ -108,14 +108,14 @@
                         </Border>
                         
                         <!-- Editor Options Toolbar -->
-                        <core:SfChipGroup ItemHeight="40" 
+                        <core:SfChipGroup ItemHeight="40"
                                     Margin="5,10,5,5" 
                                     ChipCornerRadius="20" 
                                     ChipBackground="Transparent" 
                                     ChipStrokeThickness="0"  
                                     Grid.Row="0"
                                     VerticalOptions="End"
-                                    HorizontalOptions="Start"
+                                    HorizontalOptions="End"
                                     ChipPadding="0"
                                     ChipClicked="OnChipClicked"
                                     ItemsSource="{Binding Path=EditorOptions}">         
@@ -148,18 +148,19 @@
                                               AnimationType="SingleCircle"/>
                     </Grid>
 
-                    <buttons:SfButton Text="&#xe76f;" 
+                    <buttons:SfButton Text="&#xe76f;" Margin="0,0,0,5"
                          FontFamily="MauiSampleFontIcon" 
                             Background="{StaticResource strokeGradient}" 
                             TextColor="White"
                             IsEnabled="{Binding IsDisable}"
                             CornerRadius="10"
+                            CommandParameter="{Binding .}"
                             Command="{Binding CreateButtonClicked}"
                             HorizontalOptions="End"
                             VerticalOptions="End"
                             HeightRequest="40"
-                                  WidthRequest="40"
-                                  FontSize="18"
+                            WidthRequest="40"
+                            FontSize="18"
                             Grid.Column="1">
                     </buttons:SfButton>
                 </Grid>
