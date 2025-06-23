@@ -148,7 +148,7 @@
                                               AnimationType="SingleCircle"/>
                     </Grid>
 
-                <buttons:SfButton Text="&#xe76f;" 
+                    <buttons:SfButton Text="&#xe76f;" 
                          FontFamily="MauiSampleFontIcon" 
                             Background="{StaticResource strokeGradient}" 
                             TextColor="White"

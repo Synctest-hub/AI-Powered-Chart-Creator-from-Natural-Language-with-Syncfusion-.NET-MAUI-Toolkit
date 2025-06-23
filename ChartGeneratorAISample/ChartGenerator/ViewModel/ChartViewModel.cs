@@ -653,6 +653,18 @@ namespace ChartGenerator
         private async Task GetDataFromAI(string text)
         {
             var request_query = GetChartUserPrompt(text);
+
+            if (imageSourceCollection != null && imageSourceCollection.Count > 0)
+            {
+                foreach (var imageSource in imageSourceCollection)
+                {
+                    if (imageSource is FileImageSource fileImageSource)
+                    {
+                        request_query += text + openAIService.AnalyzeImageAzureAsync(fileImageSource.File, string.Empty);
+                    }
+                }
+            }
+
             string response = await openAIService.GetAnswerFromGPT(request_query, true);
 
             if (response != null)

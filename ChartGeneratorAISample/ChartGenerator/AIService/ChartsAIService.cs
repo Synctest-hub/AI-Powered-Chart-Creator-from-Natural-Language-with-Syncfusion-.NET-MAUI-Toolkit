@@ -154,6 +154,72 @@ namespace ChartGenerator
                 _ => "Unknown class type. Available classes: ChartConfig, SeriesConfig, AxisConfig"
             };
         }
+
+        internal async Task<string> AnalyzeImageAzureAsync(ImageSource source, string textInput)
+        {
+            byte[] imageBytes = await ConvertImageSourceToByteArray(source);
+
+            // Convert the byte array to a Base64 string
+            return await InterpretImageBase64(Convert.ToBase64String(imageBytes), textInput);
+        }
+
+        public static async Task<byte[]> ConvertImageSourceToByteArray(ImageSource imageSource)
+        {
+            Stream stream = await ConvertImageSourceToStream(imageSource);
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private static async Task<Stream> ConvertImageSourceToStream(ImageSource imageSource)
+        {
+            if (imageSource is FileImageSource fileImageSource)
+            {
+                return new FileStream(fileImageSource.File, FileMode.Open, FileAccess.Read);
+            }
+            else if (imageSource is UriImageSource uriImageSource)
+            {
+                var httpClient = new System.Net.Http.HttpClient();
+                return await httpClient.GetStreamAsync(uriImageSource.Uri);
+            }
+            else if (imageSource is StreamImageSource streamImageSource)
+            {
+                return await streamImageSource.Stream(default);
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported ImageSource type");
+            }
+        }
+
+        internal async Task<string> InterpretImageBase64(string base64, string textInput)
+        {
+
+            try
+            {
+                var imageDataUri = $"data:image/jpeg;base64,{base64}";
+                var chatHistory = new Microsoft.Extensions.AI.ChatMessage();
+                chatHistory.Text = "You are an AI assistant that describes images.";
+                chatHistory.Contents = (new List<AIContent>
+                {
+            new TextContent("Describe this image:"),
+            new TextContent($"{textInput}"),
+            new ImageContent(imageDataUri)
+                });
+
+                var result = await Client.CompleteAsync(new[] { chatHistory });
+                return result?.ToString() ?? "No description generated.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error generating OpenAI response: {ex.Message}";
+            }
+        }
+
+
     }
     #endregion
 }

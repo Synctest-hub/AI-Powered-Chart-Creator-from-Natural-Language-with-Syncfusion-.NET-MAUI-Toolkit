@@ -33,7 +33,7 @@ namespace ChartGenerator
 
         private async void OnCreateButtonClicked()
         {
-            if (!string.IsNullOrEmpty(EntryText))
+            if (!string.IsNullOrEmpty(EntryText) || (ImageSourceCollection == null || ImageSourceCollection.Count == 0))
             {
                 IsLoading = true;
                 ShowAssistView = false;
