@@ -183,6 +183,11 @@ public partial class ChartView : ContentPage
             System.Diagnostics.Debug.WriteLine($"PDF Export Error: {ex.ToString()}");
         }
     }
+
+    private void Saveasimage_Clicked(object sender, EventArgs e)
+    {
+        templatedItemView.SaveAsImage("AiBlog");
+    }
 }
 
 public class ChartTemplateSelector : DataTemplateSelector

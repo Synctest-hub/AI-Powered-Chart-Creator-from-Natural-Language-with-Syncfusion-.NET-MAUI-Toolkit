@@ -1,19 +1,23 @@
+
+using Newtonsoft.Json;
 using Syncfusion.Maui.AIAssistView;
 using Syncfusion.Maui.Popup;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Windows.Input;
 namespace ChartGenerator
 {
     public partial class ChatViewModel : INotifyPropertyChanged
     {
+
+        private readonly ImagePickerHelper _imagePickerHelper;
         public event PropertyChangedEventHandler? PropertyChanged;
         private bool canStopResponse;
         private string sendIconText;
         private bool autoSuggestionPopupIsOpen;
         private string inputText;
-        private ObservableCollection<ImageSource> imageSourceCollection;
-        private readonly ImagePickerHelper _imagePickerHelper;
+        private ObservableCollection<ImageSource> imageSourceCollection; 
         private int imageNo;
         private string? entryText;
         private bool showAssistView;
@@ -23,11 +27,73 @@ namespace ChartGenerator
         private string newJson;
         private bool enableAssistant;
         private bool isLoading;
-        private ObservableCollection<IAssistItem> messages = new();
-
+        private ObservableCollection<IAssistItem> messages = new(); 
+        private bool isTemporaryChatEnabled;
+        private SfPopup OptionsPopup; 
         private bool isSendIconEnabled;
         internal bool isResponseStreaming;
-        private double sendIconWidth;
+        private double sendIconWidth;   
+        private SfPopup ExpandedEditorPopup;
+        private ObservableCollection<Option> optionsContextMenu;  
+        private bool isNewChatEnabled;
+        private bool isHeaderVisible = true;
+        public bool IsNewChatEnabled
+        {
+            get
+            {
+                return isNewChatEnabled;
+            }
+            set
+            {
+                isNewChatEnabled = value;
+                OnPropertyChanged(nameof(IsNewChatEnabled));
+            }
+        }
+        public bool IsHeaderVisible
+        {
+            get
+            {
+                return isHeaderVisible;
+            }
+            set
+            {
+                isHeaderVisible = value;
+                if (!value)
+                {
+                    this.IsNewChatEnabled = true;
+                }
+                else
+                {
+                    this.IsNewChatEnabled = false;
+                }
+                OnPropertyChanged(nameof(IsHeaderVisible));
+            }
+        } 
+        public ObservableCollection<Option> OptionsContextMenu
+        {
+            get
+            {
+                return optionsContextMenu;
+            }
+            set
+            {
+                optionsContextMenu = value;
+                OnPropertyChanged(nameof(OptionsContextMenu));
+            }
+        }
+         
+        public bool IsTemporaryChatEnabled
+        {
+            get
+            {
+                return isTemporaryChatEnabled;
+            }
+            set
+            {
+                isTemporaryChatEnabled = value;
+                OnPropertyChanged(nameof(IsTemporaryChatEnabled));
+            }
+        }
         public double SendIconWidth
         {
             get { return sendIconWidth; }
@@ -150,20 +216,9 @@ namespace ChartGenerator
             }
         }
 
-        private ObservableCollection<String>? modelPrompts;
-        public ObservableCollection<String>? ModelPrompts
-        {
-            get { return modelPrompts; }
-            set
-            {
-                this.modelPrompts = value;
-                OnPropertyChanged(nameof(ModelPrompts));
-            }
-        }
-
         public Command<object> SendButtonCommand { get; set; }
         public ICommand ButtonClicked { get; }
-        public ICommand CreateButtonClicked { get; }
+        public Command<object> CreateButtonClicked { get; }
         public ICommand AiButtonClicked { get; }
         public ICommand CloseButtonClicked { get; }
         public ICommand RefreshButtonClicked { get; }
@@ -207,33 +262,40 @@ namespace ChartGenerator
             }
         }
 
+        public string InputText
+        {
+            get { return inputText; }
+            set
+            {
+                inputText = value;
+                UpdateSendIcon(inputText);
+                OnPropertyChanged(nameof(InputText));
+                //UpdateFilter();
+                AutoSuggestionPopupIsOpen = !string.IsNullOrEmpty(InputText) && this.Messages.Count == 0;
+            }
+        }
+
         public bool HasImageUploaded
         {
             get { return this.ImageSourceCollection.Count > 0; }
         }
         public ChatViewModel()
-        {
+        { 
+            _imagePickerHelper = new ImagePickerHelper();
             ButtonClicked = new Command<string>(OnButtonClicked);
-            CreateButtonClicked = new Command(OnCreateButtonClicked);
+            CreateButtonClicked = new Command<object>(OnCreateButtonClicked);
             AiButtonClicked = new Command(OnAiButtonClicked);
             RequestCommand = new Command<object>(OnRequest);
             CloseButtonClicked = new Command(OnCloseButtonClicked);
             RefreshButtonClicked = new Command(OnRefreshButtonClicked);
-            EditorOptionsComamnd = new Command<object>(ExecuteEditorOptionsCommand);
-
+            EditorOptionsComamnd = new Command<object>(ExecuteEditorOptionsCommand);    
             CancelImageSelected = new Command<object>(ExecuteCancelImageSelectedCommand);
             SendButtonCommand = new Command<object>(ExecuteSendButtonCommand);
-            EditorExpandCollapseCommand = new Command<object>(ExecuteEditorExpandCollapseCommand);
-            _imagePickerHelper = new ImagePickerHelper();
+            EditorExpandCollapseCommand = new Command<object>(ExecuteEditorExpandCollapseCommand); 
             this.ImageSourceCollection = new ObservableCollection<ImageSource>();
             AttachmentContextMenuCommand = new Command<object>(OnAttachmentContextMenuTapCommand);
             EditorOptions = new ObservableCollection<Option>();
-            EditorOptions.Add(new Option() { Name = "Attachment", Icon = "\ue754" });
-            modelPrompts = new ObservableCollection<String>()
-            {
-                "Remove legends from the chart",
-                "Change the chart title to 'Sales by Region'",
-            };
+            EditorOptions.Add(new Option() { Name = "Attachment", Icon = "\ue754" }); 
         }
         public void ExecuteCancelImageSelectedCommand(object obj)
         {
@@ -285,7 +347,6 @@ namespace ChartGenerator
                 Console.WriteLine($"Error removing image: {ex.Message}");
             }
         }
-        private SfPopup ExpandedEditorPopup;
         private void ExecuteSendButtonCommand(object obj)
         {
             var text = this.InputText;
@@ -332,19 +393,7 @@ namespace ChartGenerator
             }
         }
 
-        private ObservableCollection<Option> optionsContextMenu;
-        public ObservableCollection<Option> OptionsContextMenu
-        {
-            get
-            {
-                return optionsContextMenu;
-            }
-            set
-            {
-                optionsContextMenu = value;
-                OnPropertyChanged(nameof(OptionsContextMenu));
-            }
-        }
+       
         private async void SendRequest(AssistItem requestItem, object obj)
         {
             if (this.isResponseStreaming)
@@ -353,102 +402,14 @@ namespace ChartGenerator
             }
             this.isResponseStreaming = true;
             this.Messages.Add(requestItem);
-            if (OptionsContextMenu.Count <= 2)
-                PopulateOptionsContextMenu();
-            this.InputText = string.Empty;
+             this.InputText = string.Empty;
             await this.GetResult(requestItem, obj).ConfigureAwait(true);
         }
 
-        private bool isNewChatEnabled;
-        private bool isHeaderVisible = true;
-        public bool IsNewChatEnabled
-        {
-            get
-            {
-                return isNewChatEnabled;
-            }
-            set
-            {
-                isNewChatEnabled = value;
-                OnPropertyChanged(nameof(IsNewChatEnabled));
-            }
-        }
-        public bool IsHeaderVisible
-        {
-            get
-            {
-                return isHeaderVisible;
-            }
-            set
-            {
-                isHeaderVisible = value;
-                if (!value)
-                {
-                    this.IsNewChatEnabled = true;
-                }
-                else
-                {
-                    this.IsNewChatEnabled = false;
-                }
-                OnPropertyChanged(nameof(IsHeaderVisible));
-            }
-        }
-
         internal async Task GetResult(object inputQuery, object assistView)
-        {
+        { 
         }
-
-        public bool IsTemporaryChatEnabled
-        {
-            get
-            {
-                return isTemporaryChatEnabled;
-            }
-            set
-            {
-                isTemporaryChatEnabled = value;
-                OnPropertyChanged(nameof(IsTemporaryChatEnabled));
-            }
-        }
-        private bool isTemporaryChatEnabled;
-        private SfPopup OptionsPopup;
-        private void PopulateOptionsContextMenu(bool isChatHistoryItemPressed = false)
-        {
-            OptionsContextMenu = new ObservableCollection<Option>();
-            if (isChatHistoryItemPressed)
-            {
-                if (this.OptionsPopup != null)
-                {
-                    this.OptionsPopup.WidthRequest = 130;
-                }
-                OptionsContextMenu.Add(new Option() { Name = "Rename", Icon = "\ue73d" });
-                OptionsContextMenu.Add(new Option() { Name = "Archive", Icon = "\ue777" });
-                OptionsContextMenu.Add(new Option() { Name = "Delete", Icon = "\ue73c" });
-            }
-            else if (Messages != null && Messages.Count > 0 && !IsTemporaryChatEnabled)
-            {
-                if (this.OptionsPopup != null)
-                {
-                    this.OptionsPopup.WidthRequest = 190;
-                }
-                OptionsContextMenu.Add(new Option() { Name = "View Details", Icon = "\ue719" });
-                //OptionsContextMenu.Add(new Option() { Name = "Share", Icon = "\ue770" });
-                OptionsContextMenu.Add(new Option() { Name = "Rename", Icon = "\ue73d", CanShowSeparator = true });
-                OptionsContextMenu.Add(new Option() { Name = "Archive", Icon = "\ue777" });
-                OptionsContextMenu.Add(new Option() { Name = "Delete", Icon = "\ue73c" });
-                //OptionsContextMenu.Add(new Option() { Name = "Move to project", Icon = "\ue72e" });
-                OptionsContextMenu.Add(new Option() { Name = "Temporary Chat", Icon = "\ue7e9", CanShowSeparator = true });
-            }
-            else
-            {
-                if (this.OptionsPopup != null)
-                {
-                    this.OptionsPopup.WidthRequest = 190;
-                }
-                OptionsContextMenu.Add(new Option() { Name = "View Details", Icon = "\ue719" });
-                OptionsContextMenu.Add(new Option() { Name = "Temporary Chat", Icon = "\ue7e9", CanShowSeparator = true });
-            }
-        }
+        
         private void ExecuteEditorExpandCollapseCommand(object obj)
         {
             var editor = obj as CustomEditor;
@@ -528,18 +489,6 @@ namespace ChartGenerator
             //#else
             await Task.Delay(1);
 #endif
-        }
-        public string InputText
-        {
-            get { return inputText; }
-            set
-            {
-                inputText = value;
-                UpdateSendIcon(inputText);
-                OnPropertyChanged(nameof(InputText));
-                //UpdateFilter();
-                AutoSuggestionPopupIsOpen = !string.IsNullOrEmpty(InputText) && this.Messages.Count == 0;
-            }
         }
         private void UpdateSendIcon(string input)
         {

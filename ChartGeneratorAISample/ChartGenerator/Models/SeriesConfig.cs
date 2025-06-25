@@ -29,6 +29,7 @@ public class SeriesConfig
         get;
         set;
     }
+    public string? XPath { get; internal set; }
 }
 
 public class AxisConfig

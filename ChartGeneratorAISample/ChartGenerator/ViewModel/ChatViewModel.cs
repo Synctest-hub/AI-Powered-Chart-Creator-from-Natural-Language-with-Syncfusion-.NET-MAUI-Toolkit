@@ -2,6 +2,8 @@ using Newtonsoft.Json;
 using Syncfusion.Maui.AIAssistView;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
+using Application = Microsoft.Maui.Controls.Application;
 
 namespace ChartGenerator
 {
@@ -28,18 +30,16 @@ namespace ChartGenerator
         private void OnButtonClicked(string buttonText)
         {
             EntryText = buttonText.Replace("\"", "").Replace("&quot;", "");
-            OnCreateButtonClicked();
         }
 
-        private async void OnCreateButtonClicked()
+        private async void OnCreateButtonClicked(object obj)
         {
-            if (!string.IsNullOrEmpty(EntryText) || (ImageSourceCollection == null || ImageSourceCollection.Count == 0))
+            if (!string.IsNullOrEmpty(EntryText) || ImageSourceCollection.Count != 0)
             {
                 IsLoading = true;
                 ShowAssistView = false;
                 Messages.Clear();
                 showHeader = true;
-
                 if (ChartAIService.IsCredentialValid)
                 {
                     EnableAssistant = true;
@@ -57,36 +57,36 @@ namespace ChartGenerator
             }
         }
 
-
+        
         private string GetChartUserPrompt(string userPrompt)
         {
             string userQuery = @"
-You are a chart data generator API. Your task is to convert user inputs describing chart specifications into clean, properly formatted JSON strings. Respond ONLY with valid JSON - no explanations, markdown formatting, or code blocks.
+As an AI service, your task is to convert user inputs describing chart specifications into JSON formatted strings. Each user input will describe a specific chart type and its configurations, including axes titles, legend visibility, series configurations, etc. You will structure the output in JSON format accordingly.
 
 Example user input: ""Sales by region column chart.""
-
-Required JSON format:
+Expected JSON output:
 {
   ""chartType"": ""cartesian"",
   ""title"": ""Revenue by Region"",
   ""showLegend"": true,
-  ""sideBySidePlacement"": false,
-  ""xAxis"": [
-    {
-      ""type"": ""category"",
-      ""title"": ""Region""
-    }
-  ],
+""sideBySidePlacement"": ""true/false"",
+  ""xAxis"":[
+{
+    ""type"": ""category"",
+    ""title"": ""Region""
+  }
+],
   ""yAxis"": [
-    {
-      ""title"": ""Revenue"",
-      ""type"": ""numerical"",
-      ""min"": 0
-    }
-  ],
+{
+    ""title"": ""Revenue"",
+    ""type"": ""numerical"",
+    ""min"": 0
+  }
+],
   ""series"": [
     {
       ""type"": ""column"",
+      ""xpath"": ""region"",
       ""name"": ""Revenue"",
       ""dataSource"": [
         { ""xvalue"": ""North America"", ""yvalue"": 120000 },
@@ -100,29 +100,21 @@ Required JSON format:
   ]
 }
 
-JSON Requirements:
-1. ""chartType"": Must be either ""cartesian"" or ""circular"" (lowercase)
-2. ""title"": Create an appropriate title based on the query
-3. ""showLegend"": Boolean value, default to true
-4. ""sideBySidePlacement"": Boolean value, default to false for single series
-5. ""xAxis"" and ""yAxis"": Must be arrays of objects, even for single axis
-6. ""xAxis"" can be ""datetime"", ""category"", ""logarithmic"" or ""numerical"", ""yAxis"" can only be ""numerical"" or ""logarithmic"", based on the user requested query. Proper capitalization will be handled.
-7. ""series"": Must be an array containing series objects, and can have ""name"" based on its use case, if not have name you can do showlegend false.
-8. ""type"": Must be one of: ""line"", ""column"", ""area"", ""pie"", ""doughnut"", ""radialbar"" (lowercase)
-9. ""dataSource"": Array of objects with x and y values for the series, y value always should double and mention it in ""yvalue"" and x value can be any type mention it ""xvalue"" properties
-10. ""tooltip"": Boolean value, default to true
+When generating the JSON output, take into account the following:
 
-IMPORTANT:
-- Respond ONLY with valid, properly formatted JSON
-- Use lowercase for all enum values (chartType, series type, axis type)
-- Include all required properties
-- Always format the ""xAxis"" and ""yAxis"" as arrays
-- Always choose correct axis types based on the data points
-- Do not include any explanations or comments in your response
-- Do not use markdown code blocks - just output raw JSON
-- Ensure all property names are consistent with the format provided
+1. **Chart Type**: Determine the type of chart based on keywords in the user query. and it should be only circular or cartesian
+2. **Chart Title**: Craft an appropriate title using key elements of the query.
+3. **Axis Information**: Define the x-axis and y-axis with relevant titles and types. Use categories for discrete data and numerical for continuous data.
+4. **Series Configuration**: Include details about the series type and data points as mentioned in the query. it supports only  Line, Column, Spline, Area, Pie, Doughnut, RadialBar.
+5. **Name in the Series**: The name of the series should be represent category of the series.
+6. **Data Source**: Provide a sample data source for the series, it should only name as ""dataSource"" and include ""xvalue"" and ""yvalue"".
+7. **Show Legend**: Default as `true` unless specified otherwise.
+8.  **SideBySidePlacement**: Default to 'false' and return bool value based on multiple column series placement and column placed side by side being true, column back to back being false, or Bottom/Top being false, or one column being positive and another being negative values.
+     
 
-User Request: " + userPrompt;
+Generate appropriate configurations according to these guidelines, and return the result as a JSON formatted string for any query shared with you." +
+
+  $"User Request: " + userPrompt;
             return userQuery;
         }
 

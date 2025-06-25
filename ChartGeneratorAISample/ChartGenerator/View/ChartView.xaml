@@ -133,51 +133,7 @@
                          Spacing="12">
                                 <Label Text="How can I assist with generated chart?" Padding="0,20,0,0"  LineBreakMode="WordWrap"
                             FontSize="Subtitle"
-                            HorizontalOptions="Center" />
-                                <HorizontalStackLayout x:Name="listView"
-                                              HeightRequest="{OnPlatform WinUI=140, Android=160, MacCatalyst=180, iOS=150}"
-                                              WidthRequest="{OnPlatform MacCatalyst= 430,Android=335, iOS=310}"
-                                              HorizontalOptions="Center" Padding="{OnPlatform MacCatalyst=20}"
-                                              BindableLayout.ItemsSource="{Binding Path=ModelPrompts}">
-                                    <BindableLayout.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Padding="4">
-                                                <Border
-                                             WidthRequest="{OnPlatform WinUI=120,Android=150,MacCatalyst= 150 , iOS=140}"
-                                             HeightRequest="{OnPlatform WinUI=120,Android=130, MacCatalyst= 100, iOS=120}"
-                                             Stroke="Gray"
-                                             Padding="4">
-                                                    <Border.GestureRecognizers>
-                                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
-                                                    </Border.GestureRecognizers>
-                                                    <VisualStateManager.VisualStateGroups>
-                                                        <VisualStateGroup x:Name="CommonStates">
-                                                            <VisualState x:Name="Normal">
-                                                                <VisualState.Setters>
-                                                                    <Setter Property="Background" Value="Transparent" />
-                                                                </VisualState.Setters>
-                                                            </VisualState>
-                                                            <VisualState x:Name="PointerOver">
-                                                                <VisualState.Setters>
-                                                                    <Setter Property="Background" Value="#14000000" />
-                                                                </VisualState.Setters>
-                                                            </VisualState>
-                                                        </VisualStateGroup>
-                                                    </VisualStateManager.VisualStateGroups>
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="10" />
-                                                    </Border.StrokeShape>
-                                                    <Grid RowDefinitions="*">
-                                                        <Label Text="{Binding .}"
-                                                        LineBreakMode="WordWrap"
-                                                        VerticalTextAlignment="Center"
-                                                        HorizontalTextAlignment="Center" />
-                                                    </Grid>
-                                                </Border>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </BindableLayout.ItemTemplate>
-                                </HorizontalStackLayout>
+                            HorizontalOptions="Center" /> 
                             </VerticalStackLayout>
                         </DataTemplate>
                     </aiassistview:SfAIAssistView.HeaderTemplate>
@@ -192,6 +148,20 @@
                             Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
                             VerticalOptions="Center"
                             HorizontalOptions="Center"/>
+                <buttons:SfButton  Grid.Row="0" Margin="0,0,100,0" 
+                                   Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
+                      x:Name="saveasimage"
+                      Text="&#xE76c;" 
+                      Clicked="Saveasimage_Clicked"
+                      FontFamily="{OnPlatform Default ='MauiMaterialAssets', WinUI ='MauiMaterialAssets.ttf#MauiMaterialAssets'}"
+                      CornerRadius="5" 
+                      TextColor="White"
+                      BackgroundColor="#6750a4"
+                      FontSize="{OnPlatform WinUI=20, Android=15, MacCatalyst=20, iOS=20}"
+                      WidthRequest="30" HeightRequest="30"
+                      ToolTipProperties.Text="Save as Image"  
+                      VerticalOptions="Start"
+                      HorizontalOptions="End"/>
                 <buttons:SfButton  Grid.Row="0" Margin="0,0,60,0" 
                                    Grid.Column="{OnPlatform Android='0',iOS='0', Default='1'}"
                                    x:Name="exportchartbutton"
